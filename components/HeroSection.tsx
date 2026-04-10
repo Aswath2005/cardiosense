@@ -84,7 +84,7 @@ export default function HeroSection() {
               variants={itemVariants}
               className="font-playfair text-4xl sm:text-5xl lg:text-6xl font-bold text-text-main mb-6 leading-tight"
             >
-              Predict Your Heart Attack Risk with AI
+              Predict your heart disease risk
             </motion.h1>
 
             {/* Subtext */}

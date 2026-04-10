@@ -87,7 +87,7 @@ export default function LandingPage() {
                 transition={{ duration: 0.6 }}
               >
                 <h1 className="font-playfair text-5xl md:text-6xl font-bold text-text-main mb-6 leading-tight">
-                  Predict Your Heart Attack Risk with AI
+                  Predict your heart disease risk
                 </h1>
                 <p className="text-lg text-text-muted mb-8 leading-relaxed">
                   Early detection saves lives. CardioSense AI uses advanced machine learning to
