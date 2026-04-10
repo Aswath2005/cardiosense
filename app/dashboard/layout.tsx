@@ -1,7 +1,6 @@
 'use client'
 
 import { ProtectedRoute } from '@/components/ProtectedRoute'
-import Navbar from '@/components/Navbar'
 import { useAuth } from '@/components/AuthContext'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -29,7 +28,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center gap-2">
               <span className="text-2xl">💓</span>
               <span className="font-playfair font-bold text-primary hidden sm:inline">
-                CardioSense AI
+                CardioSense
               </span>
             </div>
 
