@@ -4,7 +4,7 @@ import { useAuth } from '@/components/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Heart, CheckCircle, Shield, Zap, Globe } from 'lucide-react'
+import { ArrowRight, Heart, Shield, Zap, Globe } from 'lucide-react'
 
 export default function LandingPage() {
   const { isAuthenticated } = useAuth()

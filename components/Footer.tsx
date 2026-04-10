@@ -17,7 +17,7 @@ export default function Footer() {
           <div className="flex items-center justify-center gap-2 mb-4">
             <span className="text-3xl">💓</span>
             <span className="font-playfair font-bold text-2xl text-primary">
-              CardioSense AI
+              CardioSense
             </span>
           </div>
 
