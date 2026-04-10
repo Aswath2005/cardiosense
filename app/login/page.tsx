@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/components/AuthContext'
-import { ArrowRight, Heart, Mail, Lock, User } from 'lucide-react'
+import { ArrowRight, Mail, Lock, User } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
