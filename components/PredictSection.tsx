@@ -4,8 +4,10 @@ import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import ResultCard from './ResultCard';
+import { predictHeartRisk } from '@/lib/api';
+import type { PatientData as PatientDataType } from '@/lib/types';
 
-interface PatientData {
+interface FormData {
   age: string;
   sex: string;
   cp: string;
@@ -21,7 +23,7 @@ interface PatientData {
   thal: string;
 }
 
-interface PredictionResult {
+interface DisplayResult {
   risk: 'high' | 'low';
   probability: number;
 }
@@ -32,7 +34,7 @@ interface ValidationError {
 }
 
 export default function PredictSection() {
-  const [formData, setFormData] = useState<PatientData>({
+  const [formData, setFormData] = useState<FormData>({
     age: '',
     sex: '',
     cp: '',
@@ -50,7 +52,7 @@ export default function PredictSection() {
 
   const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<PredictionResult | null>(null);
+  const [result, setResult] = useState<DisplayResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
 
@@ -141,7 +143,7 @@ export default function PredictSection() {
     setApiError(null);
 
     try {
-      const numericData = {
+      const numericData: PatientDataType = {
         age: parseFloat(formData.age),
         sex: parseFloat(formData.sex),
         cp: parseFloat(formData.cp),
@@ -157,21 +159,9 @@ export default function PredictSection() {
         thal: parseFloat(formData.thal),
       };
 
-      const response = await fetch('/api/predict', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(numericData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get prediction. Please try again.');
-      }
-
-      const data = await response.json();
+      const data = await predictHeartRisk(numericData);
       setResult({
-        risk: data.risk === 1 ? 'high' : 'low',
+        risk: data.risk_level,
         probability: data.probability,
       });
 
@@ -259,7 +249,7 @@ export default function PredictSection() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {fieldConfigs.map((config, index) => {
               const error = validationErrors.find((err) => err.field === config.key);
-              const value = formData[config.key as keyof PatientData];
+              const value = formData[config.key as keyof FormData];
 
               return (
                 <motion.div
