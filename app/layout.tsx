@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Playfair_Display, Inter } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/components/AuthContext'
@@ -14,6 +14,12 @@ const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
 })
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+}
 
 export const metadata: Metadata = {
   title: 'CardioSense AI — Heart Attack Risk Prediction',
