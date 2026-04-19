@@ -5,7 +5,10 @@
 
 import { PatientData, PredictionResult } from './types'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+// Use production backend URL if running on Vercel, otherwise use localhost
+const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
+  ? process.env.NEXT_PUBLIC_API_URL_PROD || '/_/backend'
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 /**
  * Call the backend /predict endpoint
