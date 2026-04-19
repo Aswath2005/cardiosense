@@ -5,10 +5,21 @@
 
 import { PatientData, PredictionResult } from './types'
 
-// Use production backend URL if running on Vercel, otherwise use localhost
-const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost' 
-  ? process.env.NEXT_PUBLIC_API_URL_PROD || '/_/backend'
-  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+// Determine the correct API URL
+const getApiUrl = (): string => {
+  // Check if running in browser
+  if (typeof window === 'undefined') {
+    return 'http://localhost:8000' // Server-side fallback
+  }
+  
+  // Development (localhost)
+  if (window.location.hostname === 'localhost') {
+    return 'http://localhost:8000'
+  }
+  
+  // Production (Vercel) - use relative path to backend service
+  return '/_/backend'
+}
 
 /**
  * Call the backend /predict endpoint
@@ -18,6 +29,7 @@ const API_URL = typeof window !== 'undefined' && window.location.hostname !== 'l
  * @throws Error if prediction fails or backend is unreachable
  */
 export async function predictHeartRisk(data: PatientData): Promise<PredictionResult> {
+  const API_URL = getApiUrl()
   try {
     const response = await fetch(`${API_URL}/predict`, {
       method: 'POST',
@@ -48,6 +60,7 @@ export async function predictHeartRisk(data: PatientData): Promise<PredictionRes
  * @returns true if model is loaded, false otherwise
  */
 export async function checkHealth(): Promise<boolean> {
+  const API_URL = getApiUrl()
   try {
     const response = await fetch(`${API_URL}/health`)
     const data = await response.json()
@@ -63,6 +76,7 @@ export async function checkHealth(): Promise<boolean> {
  * @returns Status message from the API
  */
 export async function getAPIStatus(): Promise<string> {
+  const API_URL = getApiUrl()
   try {
     const response = await fetch(`${API_URL}/`)
     const data = await response.json()
