@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { AlertCircle, CheckCircle, TrendingUp } from 'lucide-react';
+import { AlertCircle, CheckCircle } from 'lucide-react';
 
 interface ResultCardProps {
   result: {
