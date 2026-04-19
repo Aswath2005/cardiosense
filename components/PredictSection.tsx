@@ -98,7 +98,7 @@ export default function PredictSection() {
     const errors: ValidationError[] = [];
 
     fieldConfigs.forEach((config) => {
-      const value = formData[config.key as keyof PatientData];
+      const value = formData[config.key as keyof FormData];
       
       if (!value) {
         errors.push({ field: config.key, message: `${config.label} is required` });
