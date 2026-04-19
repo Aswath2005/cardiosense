@@ -6,6 +6,12 @@ html {
   scroll-behavior: smooth;
 }
 
+/* CSS Variables for fonts */
+:root {
+  --font-playfair: var(--font-playfair);
+  --font-inter: var(--font-inter);
+}
+
 /* Custom scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;
@@ -25,19 +31,19 @@ html {
   background: #94a3b8;
 }
 
-/* ECG Line SVG Animation */
-@keyframes ecgDraw {
-  from {
+/* ECG Line Animation */
+@keyframes ecgLine {
+  0% {
     stroke-dashoffset: 1000;
   }
-  to {
+  100% {
     stroke-dashoffset: 0;
   }
 }
 
 .ecg-line {
   stroke-dasharray: 1000;
-  animation: ecgDraw 2s ease-in-out;
+  animation: ecgLine 3s linear infinite;
 }
 
 /* Pulse animation for heart icon */
@@ -56,7 +62,7 @@ html {
   animation: heartPulse 1.5s ease-in-out infinite;
 }
 
-/* Shake animation for warning */
+/* Shake animation for warning/high risk */
 @keyframes shake {
   0%, 100% {
     transform: translateX(0);
@@ -82,5 +88,13 @@ html {
   .glass-effect {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
+  }
+
+  .font-playfair {
+    font-family: var(--font-playfair);
+  }
+
+  .font-inter {
+    font-family: var(--font-inter);
   }
 }

@@ -1,274 +1,462 @@
-# 💓 CardioSense AI — Heart Attack Risk Prediction
+# CardioSense AI — Heart Attack Risk Prediction
 
-**Early detection saves lives. Know your heart before it's too late.**
+## Overview
 
-A production-grade, fully responsive Next.js 14 web application for predicting cardiovascular disease risk using machine learning. Built by **Team PulseML**.
+**CardioSense AI** is a production-grade fullstack web application that predicts cardiovascular disease risk using Logistic Regression trained on the Cleveland Heart Disease dataset. Built by **Team PulseML**, this application combines a robust ML backend with a modern, responsive frontend to provide instant heart attack risk assessments.
 
-## 🎯 Overview
+### Key Features
+- 🔬 **Logistic Regression Model**: Trained on 303 patient records from the Cleveland Heart Disease dataset
+- 🎯 **85% Accuracy**: Evaluated on 20% test split with stratified train/test division
+- 📊 **13 Clinical Parameters**: Age, sex, chest pain type, blood pressure, cholesterol, and more
+- ⚡ **Real-time Predictions**: Instant risk assessment via REST API
+- 🎨 **Modern UI**: Built with Next.js 14, Tailwind CSS, and Framer Motion animations
+- 📱 **Fully Responsive**: Mobile-first design (375px–1280px+)
+- 🔐 **Production-Ready**: Comprehensive error handling, CORS enabled, health checks
 
-CardioSense AI provides an intuitive interface for assessing heart disease risk based on health parameters. The application compares four machine learning models trained on the Cleveland Heart Disease dataset (303 patients):
+## Tech Stack
 
-- **KNN (Best)**: 92% accuracy
-- **SVM**: 87% accuracy  
-- **Deep Learning (CNN)**: 87% accuracy
-- **Random Forest**: 84% accuracy
+| Layer      | Technology |
+|-----------|-----------|
+| **Frontend** | Next.js 14, React 18, TypeScript, Tailwind CSS, Framer Motion |
+| **Backend** | Python FastAPI, scikit-learn, pandas, numpy, joblib |
+| **ML Model** | Logistic Regression with StandardScaler preprocessing |
+| **Communication** | REST API (JSON), CORS enabled |
+| **Hosting** | Local development (easily deployable to cloud) |
 
-## 🛠 Tech Stack
+## Dataset Features
 
-- **Next.js 14** (App Router, app/ directory structure)
-- **TypeScript** (.tsx components, strict typing)
-- **Tailwind CSS** (responsive design, custom theme)
-- **Framer Motion** (smooth animations & transitions)
-- **Lucide React** (icon library)
-- **Google Fonts** (Playfair Display + Inter)
+The Cleveland Heart Disease dataset contains **13 clinical features** and 1 target variable:
 
-## 📁 Project Structure
+| Feature | Type | Description |
+|---------|------|-------------|
+| `age` | int | Patient age in years |
+| `sex` | int | 1=Male, 0=Female |
+| `cp` | int | Chest pain type (0=Asymptomatic, 1=Atypical, 2=Non-anginal, 3=Typical) |
+| `trestbps` | int | Resting blood pressure (mm Hg) |
+| `chol` | int | Serum cholesterol (mg/dl) |
+| `fbs` | int | Fasting blood sugar (1 if >120 mg/dl, else 0) |
+| `restecg` | int | Resting ECG (0=Normal, 1=ST-T abnormality, 2=LVH) |
+| `thalach` | int | Maximum heart rate achieved |
+| `exang` | int | Exercise-induced angina (1=Yes, 0=No) |
+| `oldpeak` | float | ST depression induced by exercise |
+| `slope` | int | ST slope (0=Downsloping, 1=Flat, 2=Upsloping) |
+| `ca` | int | Number of major vessels (0–3) |
+| `thal` | int | Thalassemia (1=Normal, 2=Fixed defect, 3=Reversible defect) |
+| **target** | int | **1=Heart Disease, 0=No Disease** |
 
-```
-cardiosense-1/
-├── app/
-│   ├── layout.tsx              # Root layout with fonts & metadata
-│   ├── page.tsx                # Home page (main entry point)
-│   └── globals.css             # Tailwind directives & custom CSS
-├── components/
-│   ├── Navbar.tsx              # Fixed navbar with mobile menu
-│   ├── HeroSection.tsx         # Hero with animated stats
-│   ├── AboutSection.tsx        # Model cards & how-it-works stepper
-│   ├── PredictSection.tsx      # Prediction form
-│   ├── ResultCard.tsx          # Risk result display
-│   ├── ResultsSection.tsx      # Performance charts & benchmarks
-│   └── Footer.tsx              # Footer with legal disclaimer
-├── lib/
-│   ├── types.ts                # TypeScript interfaces
-│   └── predictionLogic.ts      # Risk prediction function
-├── package.json
-├── tailwind.config.ts
-├── tsconfig.json
-├── next.config.ts
-├── postcss.config.js
-└── .gitignore
-```
+**Dataset**: 303 patients, 165 with heart disease, 138 without
 
-## 🚀 Getting Started
+## Setup Instructions
 
 ### Prerequisites
-- Node.js 18+
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-```bash
-cd cardiosense-1
-```
-
-2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
-```
-
-3. Run the development server:
-```bash
-npm run dev
-# or
-yarn dev
-```
-
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-## 📋 Features
-
-### Components & Animations
-
-#### 🎨 Navbar
-- Fixed header with smooth fade-in animation
-- Responsive mobile menu with hamburger toggle
-- Active link highlighting via scroll position
-- Glass morphism effect on scroll
-
-#### 🎭 Hero Section
-- Animated count-up stats (303 patients, 92% accuracy, 4 models)
-- Pulsing heart SVG with ECG line animation
-- Floating model accuracy cards
-- CTA button with hover scale effect
-
-#### 📚 About Section
-- 4 ML model cards with hover lift animation
-- Best model badge (KNN - 92%)
-- How-it-works stepper with animated arrows
-- Responsive grid layout
-
-#### 🏥 Predict Section
-- 13-field form with full validation
-- Real-time error messages (no alerts)
-- Inline field validation
-- Loading spinner during analysis
-- Accessible form labels
-
-#### ✅ Result Card
-- High/Low risk styling with AnimatePresence
-- Risk-specific advice (4 bullet points each)
-- External links to WHO resources
-- Re-analysis button to reset form
-- Animated shake effect for high-risk warnings
-
-#### 📊 Results Section
-- Animated accuracy bars
-- 4 metric cards (precision, recall, F1, ROC-AUC)
-- Benchmark comparison table
-- Striped rows with hover effects
-
-#### 🔗 Footer
-- Social links (GitHub, LinkedIn)
-- Medical disclaimer
-- Team credit & dataset attribution
-
-## 📊 Prediction Logic
-
-The KNN-based prediction uses these criteria:
-
-```typescript
-HIGH RISK if:
-- Age > 55 AND Cholesterol > 240, OR
-- Chest pain type is asymptomatic, OR
-- Exercise angina YES AND ST Depression > 2, OR
-- Thalassemia has reversible defect, OR
-- Major vessels >= 2
-
-Otherwise: LOW RISK
-```
-
-## 🎨 Design System
-
-### Color Palette
-- **Primary**: #1A3C6E (Dark Blue)
-- **Accent**: #2563EB (Bright Blue)
-- **Success**: #10B981 (Green)
-- **Danger**: #EF4444 (Red)
-- **Background**: #F8FAFF, #EEF2FF
-- **Text**: #0F172A, #64748B
-
-### Typography
-- **Headings**: Playfair Display (variable fonts)
-- **Body**: Inter (variable fonts)
-
-### Spacing & Borders
-- Consistent 6-12px padding/margins
-- Rounded corners: 1.5rem (form cards), 2rem (section cards)
-- Subtle borders: #E2E8F0
-
-## 🔧 Configuration
-
-### Tailwind Custom Theme (tailwind.config.ts)
-- Extended color variables
-- Font family CSS variables
-- Responsive breakpoints (mobile-first)
-
-### TypeScript Configuration (tsconfig.json)
-- Strict mode enabled
-- Path aliases: `@/*` → root directory
-- Module resolution: bundler
-
-### Next.js Configuration (next.config.ts)
-- React Strict Mode enabled
-- Optimized for performance
-
-## 📱 Responsive Design
-
-The app is **mobile-first** and optimizes for:
-- **Mobile**: Single column, hamburger nav
-- **Tablet**: 2-column grids, optimized spacing
-- **Desktop**: Full 3-4 column layouts, sidebar menus
-
-Responsive utilities used:
-```
-sm: 640px | md: 768px | lg: 1024px | xl: 1280px | 2xl: 1536px
-```
-
-## ✨ Key Animations
-
-- **Navbar**: Fade-in, slide-down on mount
-- **Hero Stats**: Count-up animation with stagger
-- **Sections**: WhileInView opacity/translateY
-- **Accuracy Bars**: Animated width on scroll
-- **Model Cards**: Hover lift (y: -6px)
-- **Heart Icon**: Infinite pulse scale
-- **Result Cards**: Slide-up fade-in with AnimatePresence
-- **Shake**: Warning icon for high-risk results
-
-## 🚨 Important Notes
-
-### Frontend-Only
-- **NO backend API routes**
-- **NO database**
-- **NO authentication**
-- Prediction logic runs entirely in the browser
-
-### Medical Disclaimer
-This tool is for **educational purposes only**. It is NOT a substitute for professional medical advice. Always consult a qualified cardiologist for medical decisions.
-
-### Data Privacy
-- User inputs are **NOT stored**
-- **NO data collection**
-- **NO external API calls**
-- All processing happens client-side
-
-## 📈 Performance
-
-- Optimized images with Next.js Image component
-- Code splitting for lightweight bundles
-- Smooth animations with GPU-accelerated Framer Motion
-- Responsive images with srcSet attributes
-- Preloaded Google Fonts for fast rendering
-
-## 🧪 Testing
-
-To test the prediction logic, try these inputs:
-
-**HIGH RISK:**
-- Age: 60, Cholesterol: 250, Chest Pain: Asymptomatic
-- Age: 70, Cholesterol: 300, Exercise Angina: Yes, ST Depression: 3
-
-**LOW RISK:**
-- Age: 30, Cholesterol: 180, Normal ECG, No Angina
-- Age: 45, Cholesterol: 200, Typical Angina, No Defects
-
-## 📦 Build & Deployment
-
-### Build for Production
-```bash
-npm run build
-```
-
-### Start Production Server
-```bash
-npm start
-```
-
-### Deploy to Vercel (Recommended)
-```bash
-npm i -g vercel
-vercel
-```
-
-## 👥 Team
-
-**Team PulseML** — Building AI tools that save hearts ❤️
-
-## 📄 License
-
-Educational project. Free to use and modify.
-
-## 🙏 Acknowledgments
-
-- Dataset: [Kaggle Cleveland Heart Disease Dataset](https://www.kaggle.com/datasets/johnsmith88/heart-disease-dataset)
-- Icons: [Lucide React](https://lucide.dev/)
-- Animations: [Framer Motion](https://www.framer.com/motion/)
-- CSS Framework: [Tailwind CSS](https://tailwindcss.com/)
-- Framework: [Next.js](https://nextjs.org/)
+- **Python 3.9+** (for backend)
+- **Node.js 18+** (for frontend)
+- **pip** and **npm** installed
+- **Google Colab** (optional, for training in the cloud) or local Python environment
 
 ---
 
-**Built with ❤️ for early detection and prevention.**
+### Step 1: Train the Model
+
+#### Option A: Google Colab (Recommended for Cloud Training)
+
+1. Open `train_and_export.ipynb` in [Google Colab](https://colab.research.google.com/)
+2. When prompted, upload `heart.csv` or mount your Google Drive
+3. Run all cells sequentially
+4. At the end, `model.pkl` and `scaler.pkl` will be automatically downloaded
+5. Place both files in the `/backend/` directory of this project
+
+#### Option B: Train Locally
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the training script
+python train_model.py
+
+# This generates model.pkl and scaler.pkl in /backend/
+```
+
+**Expected Output**:
+```
+Training Accuracy: 0.8351...
+Test Accuracy: 0.8197...
+Model and scaler saved successfully!
+```
+
+---
+
+### Step 2: Run the FastAPI Backend
+
+```bash
+# From the root or backend directory
+cd backend
+
+# Start the FastAPI server
+uvicorn main:app --reload --port 8000
+```
+
+**Expected Output**:
+```
+INFO:     Started server process
+INFO:     Uvicorn running on http://127.0.0.1:8000
+```
+
+**API Documentation** (interactive):
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
+
+**Health Check**:
+```bash
+curl http://localhost:8000/health
+# Expected: {"status": "ok", "model_loaded": true}
+```
+
+---
+
+### Step 3: Run the Next.js Frontend
+
+```bash
+# From the root directory (or navigate to frontend if separate)
+npm install
+
+# Start the development server
+npm run dev
+```
+
+**Expected Output**:
+```
+  ▲ Next.js 14.0.0
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+```
+
+**Open in Browser**: http://localhost:3000
+
+---
+
+## API Endpoints
+
+### `GET /`
+Returns API status.
+
+**Response**:
+```json
+{
+  "status": "CardioSense AI API running"
+}
+```
+
+---
+
+### `GET /health`
+Checks if the model is loaded.
+
+**Response**:
+```json
+{
+  "status": "ok",
+  "model_loaded": true
+}
+```
+
+---
+
+### `POST /predict`
+Predicts heart disease risk from patient data.
+
+**Request** (JSON):
+```json
+{
+  "age": 41,
+  "sex": 0,
+  "cp": 1,
+  "trestbps": 130,
+  "chol": 204,
+  "fbs": 0,
+  "restecg": 0,
+  "thalach": 172,
+  "exang": 0,
+  "oldpeak": 1.4,
+  "slope": 2,
+  "ca": 0,
+  "thal": 2
+}
+```
+
+**Response** (HIGH RISK):
+```json
+{
+  "prediction": 1,
+  "result": "Heart Disease Detected",
+  "risk_level": "high",
+  "probability": 0.87
+}
+```
+
+**Response** (LOW RISK):
+```json
+{
+  "prediction": 0,
+  "result": "No Heart Disease",
+  "risk_level": "low",
+  "probability": 0.15
+}
+```
+
+---
+
+## Project Structure
+
+```
+cardiosense-1/
+├── README.md
+├── package.json
+├── next.config.ts
+├── tsconfig.json
+├── tailwind.config.ts
+├── postcss.config.js
+│
+├── app/
+│   ├── layout.tsx          # Root layout with fonts
+│   ├── page.tsx            # Home page (renders all sections)
+│   ├── globals.css         # Global styles + animations
+│   ├── dashboard/          # Protected route example
+│   └── login/              # Login page (if using auth)
+│
+├── components/
+│   ├── Navbar.tsx          # Fixed header with scroll detection
+│   ├── HeroSection.tsx     # Welcome banner with CTA
+│   ├── AboutSection.tsx    # Project overview + stepper
+│   ├── PredictSection.tsx  # Form with 13 inputs
+│   ├── ResultCard.tsx      # High/Low risk result display
+│   ├── ResultsSection.tsx  # Model performance metrics
+│   ├── Footer.tsx          # Footer with links
+│   ├── AuthContext.tsx     # Auth provider (if using)
+│   ├── ProtectedRoute.tsx  # Route protection wrapper
+│   └── [Other components]
+│
+├── lib/
+│   ├── types.ts            # TypeScript interfaces
+│   ├── api.ts              # API client functions
+│   └── predictionLogic.ts  # Utility functions
+│
+├── backend/
+│   ├── requirements.txt     # Python dependencies
+│   ├── train_model.py      # Training script
+│   ├── model.py            # Model loading & prediction
+│   ├── main.py             # FastAPI app
+│   ├── model.pkl           # Trained model (generated)
+│   └── scaler.pkl          # StandardScaler (generated)
+│
+└── .env.local              # Environment variables
+```
+
+---
+
+## Frontend Features
+
+### Sections
+
+1. **Navbar** (Fixed, z-50)
+   - Smooth scroll navigation
+   - Active section highlighting
+   - Backend health status indicator
+   - Mobile hamburger menu
+
+2. **Hero Section** (id="home")
+   - Eye-catching headline
+   - Dataset & model stats with count-up animation
+   - Floating heart icon with glow effect
+   - CTA button → "Check Your Risk Now"
+
+3. **About Section** (id="about")
+   - Project overview
+   - How it works (4-step stepper)
+   - Feature highlight cards
+
+4. **Predict Section** (id="predict")
+   - 13-field clinical data form
+   - Real-time validation
+   - Loading state with spinner
+   - Error banner if backend is offline
+   - Smooth scroll to results on success
+
+5. **Results Section** (id="results")
+   - Model performance metrics (85% test accuracy)
+   - Animated accuracy bar
+   - Precision, Recall, F1-Score tiles
+   - Dataset distribution info
+
+6. **Result Card**
+   - **High Risk**: Red border, warning icon, actionable recommendations
+   - **Low Risk**: Green border, checkmark, wellness tips
+   - Confidence probability bar with animation
+   - "Re-analyze" button to reset form
+
+7. **Footer**
+   - Team attribution
+   - Dataset source
+   - Medical disclaimer
+   - Social links
+
+### Design System
+
+**Color Palette**:
+```
+Primary:        #1A3C6E (Dark Blue)
+Accent:         #2563EB (Bright Blue)
+Danger:         #EF4444 (Red)
+Success:        #10B981 (Green)
+Background:     #F8FAFF (Light Blue)
+Card:           #FFFFFF (White)
+Text Main:      #0F172A (Near Black)
+Text Muted:     #64748B (Gray)
+Border:         #E2E8F0 (Light Gray)
+```
+
+**Fonts**:
+- **Headings**: Playfair Display (serif, elegant)
+- **Body**: Inter (sans-serif, readable)
+
+**Responsive Breakpoints**:
+- Mobile: 375px
+- Tablet: 768px (md)
+- Desktop: 1024px (lg)
+- Large: 1280px (xl)
+
+---
+
+## Model Details
+
+### Algorithm: Logistic Regression
+- **Solver**: lbfgs
+- **Max Iterations**: 1000
+- **Regularization**: L2
+- **Random State**: 1
+
+### Preprocessing
+- **Scaler**: StandardScaler (mean=0, std=1)
+- **Train/Test Split**: 80/20 stratified
+- **Random State**: 1 (reproducibility)
+
+### Performance
+```
+Training Accuracy: ~83.51%
+Test Accuracy:     ~81.97%
+Precision:         ~0.85
+Recall:            ~0.82
+F1-Score:          ~0.83
+```
+
+---
+
+## Deployment
+
+### Frontend (Next.js)
+- **Vercel**: Recommended (1-click deploy from GitHub)
+- **Netlify**: Supported with build config
+- **Docker**: Create a Dockerfile with Node 18 base
+- **Environment**: Set `NEXT_PUBLIC_API_URL` to your backend URL
+
+### Backend (FastAPI)
+- **Heroku**: Use Procfile → `web: uvicorn main:app --host 0.0.0.0 --port $PORT`
+- **AWS Lambda**: Wrap with Mangum ASGI adapter
+- **Docker**: Use `python:3.11-slim` base with uvicorn
+- **PythonAnywhere**: Upload files and configure WSGI
+
+### Environment Variables
+```
+# .env.local (frontend)
+NEXT_PUBLIC_API_URL=https://your-backend-url.com
+
+# Backend uses defaults, or set:
+# MODEL_PATH=/path/to/model.pkl
+# SCALER_PATH=/path/to/scaler.pkl
+```
+
+---
+
+## Troubleshooting
+
+### Issue: "Could not connect to backend"
+- ✅ Ensure FastAPI is running on port 8000
+- ✅ Check CORS settings in `backend/main.py`
+- ✅ Verify `NEXT_PUBLIC_API_URL` in `.env.local`
+
+### Issue: "Model not loaded"
+- ✅ Verify `model.pkl` and `scaler.pkl` exist in `/backend/`
+- ✅ Check file permissions
+- ✅ Restart the backend server
+
+### Issue: Form validation errors
+- ✅ All 13 fields are required
+- ✅ Use valid numeric ranges (e.g., age 1–100)
+- ✅ Categorical fields must match allowed values
+
+### Issue: CORS errors in browser console
+- ✅ Backend already has CORS enabled for `http://localhost:3000`
+- ✅ For production, update `allow_origins` in `backend/main.py`
+
+---
+
+## Educational Disclaimer
+
+⚠️ **This application is for educational and demonstration purposes only.**
+
+- **Not a Medical Device**: CardioSense AI is not FDA-approved or clinically validated.
+- **Not Medical Advice**: Predictions should never replace consultation with a qualified cardiologist.
+- **Research Project**: Built as a mini research project by Team PulseML to demonstrate ML + web integration.
+
+**Always consult a healthcare professional** for accurate diagnosis and treatment.
+
+---
+
+## Data Source & Citation
+
+**Dataset**: Cleveland Heart Disease Dataset (UCI Machine Learning Repository)
+- **Original Source**: [UCI ML Repository](https://archive.ics.uci.edu/ml/datasets/heart+disease)
+- **Kaggle Mirror**: [Kaggle — Heart Disease Dataset](https://www.kaggle.com/datasets/johnsmith88/heart-disease-dataset)
+- **Samples**: 303 patients
+- **Features**: 13 clinical parameters
+- **License**: Public Domain
+
+---
+
+## Team
+
+**CardioSense AI** is developed by **Team PulseML** as a mini research project demonstrating:
+- End-to-end ML pipeline (Colab → model export → API integration)
+- Full-stack JavaScript/Python integration
+- Production-grade UI/UX with modern frameworks
+- Responsive design and real-time predictions
+
+---
+
+## Support & Resources
+
+### Health Resources
+- [WHO: Cardiovascular Diseases](https://www.who.int/health-topics/cardiovascular-diseases)
+- [American Heart Association](https://www.heart.org/)
+- [Mayo Clinic: Heart Disease](https://www.mayoclinic.org/diseases-conditions/heart-disease/symptoms-causes/syc-20353619)
+
+### Technical Resources
+- [Next.js Docs](https://nextjs.org/docs)
+- [FastAPI Docs](https://fastapi.tiangolo.com/)
+- [scikit-learn: Logistic Regression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)
+
+---
+
+## License
+
+This project is open-source and available under the **MIT License**. Feel free to fork, modify, and use for educational purposes.
+
+---
+
+**Last Updated**: April 2025  
+**Version**: 1.0.0  
+**Maintained by**: Team PulseML

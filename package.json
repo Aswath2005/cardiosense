@@ -1,7 +1,7 @@
 {
   "name": "cardiosense-ai",
   "version": "1.0.0",
-  "description": "CardioSense AI — Heart Attack Risk Prediction with AI",
+  "description": "CardioSense AI — Heart Attack Risk Prediction with Logistic Regression",
   "private": true,
   "scripts": {
     "dev": "next dev",
