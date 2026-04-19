@@ -30,24 +30,24 @@ export default function HeroSection() {
   }, [])
 
   return (
-    <section id="home" className="min-h-screen bg-gradient-to-br from-bg-main to-bg-section pt-32 pb-20 px-6">
+    <section id="home" className="min-h-screen bg-gradient-to-br from-bg-main to-bg-section pt-24 sm:pt-32 pb-16 sm:pb-20 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
           {/* Left Column */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex flex-col gap-8"
+            className="flex flex-col gap-6 sm:gap-8"
           >
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 bg-blue-50 border border-accent rounded-full px-4 py-2 w-fit"
+              className="inline-flex items-center gap-2 bg-blue-50 border border-accent rounded-full px-3 sm:px-4 py-2 w-fit"
             >
-              <span className="text-sm">🔬 AI-Powered · Logistic Regression · 85% Accuracy</span>
+              <span className="text-xs sm:text-sm">🔬 AI-Powered · Logistic Regression · 85% Accuracy</span>
             </motion.div>
 
             {/* Heading */}
@@ -55,7 +55,7 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="font-playfair text-5xl md:text-6xl font-bold text-text-main leading-tight"
+              className="font-playfair text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-text-main leading-tight"
             >
               Predict Your Heart Attack Risk with AI
             </motion.h1>

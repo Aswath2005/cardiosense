@@ -52,12 +52,12 @@ export default function Navbar() {
           isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           {/* Logo */}
           <a href="#home" className="flex items-center gap-2">
-            <span className="text-2xl">💓</span>
-            <span className="font-playfair font-bold text-xl text-primary hidden sm:inline">
-              CardioSense AI
+            <span className="text-xl sm:text-2xl">💓</span>
+            <span className="font-playfair font-bold text-base sm:text-lg md:text-xl text-primary hidden sm:inline">
+              CardioSense
             </span>
           </a>
 

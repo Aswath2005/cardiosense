@@ -4,12 +4,29 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* CSS Variables for fonts */
 :root {
   --font-playfair: var(--font-playfair);
   --font-inter: var(--font-inter);
+  font-size: 14px;
+}
+
+/* Mobile-first text sizing */
+@media (min-width: 640px) {
+  :root {
+    font-size: 16px;
+  }
+}
+
+/* Improve text rendering on all devices */
+body {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
 }
 
 /* Custom scrollbar styling */
@@ -96,5 +113,31 @@ html {
 
   .font-inter {
     font-family: var(--font-inter);
+  }
+
+  /* Better button styling for touch */
+  button, input[type="button"], input[type="submit"] {
+    min-height: 48px;
+    min-width: 48px;
+    @apply transition-all;
+  }
+
+  /* Better form input styling for touch */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  textarea {
+    min-height: 44px;
+    @apply transition-all duration-200;
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  /* Remove default focus outline */
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
   }
 }
