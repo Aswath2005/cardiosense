@@ -55,9 +55,9 @@ class PatientData(BaseModel):
     thalach: int = Field(..., description="Maximum heart rate achieved")
     exang: Literal[0, 1] = Field(..., description="Exercise-induced angina")
     oldpeak: float = Field(..., description="ST depression")
-    slope: Literal[0, 1, 2] = Field(..., description="ST slope")
+    slope: Literal[1, 2, 3] = Field(..., description="ST slope")
     ca: Literal[0, 1, 2, 3] = Field(..., description="Major vessels")
-    thal: Literal[1, 2, 3] = Field(..., description="Thalassemia")
+    thal: Literal[3, 6, 7] = Field(..., description="Thalassemia")
 
 
 class PredictionResponse(BaseModel):
