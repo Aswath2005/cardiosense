@@ -49,14 +49,16 @@ export default function Navbar() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-white shadow-lg' : 'bg-transparent'
+          isScrolled
+            ? 'bg-bg-section/80 backdrop-blur-xl border-b border-border shadow-lg'
+            : 'bg-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           {/* Logo */}
-          <a href="#home" className="flex items-center gap-2">
-            <span className="text-xl sm:text-2xl">💓</span>
-            <span className="font-playfair font-bold text-base sm:text-lg md:text-xl text-primary hidden sm:inline">
+          <a href="#home" className="flex items-center gap-2 group">
+            <span className="text-xl sm:text-2xl group-hover:heart-pulse transition-all">💓</span>
+            <span className="font-playfair font-bold text-base sm:text-lg md:text-xl gradient-text hidden sm:inline">
               CardioSense
             </span>
           </a>
@@ -68,10 +70,10 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setActiveLink(link.href.slice(1))}
-                className={`text-sm font-medium transition-colors ${
+                className={`text-sm font-medium transition-all duration-300 pb-2 border-b-2 ${
                   activeLink === link.href.slice(1)
-                    ? 'text-accent border-b-2 border-accent'
-                    : 'text-text-muted hover:text-text-main'
+                    ? 'text-primary border-primary shadow-glow'
+                    : 'text-text-muted border-transparent hover:text-text-main hover:border-primary/50'
                 }`}
               >
                 {link.label}
@@ -83,10 +85,12 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {/* API Health Indicator */}
             <div className="flex items-center gap-2">
-              <div
-                className={`w-3 h-3 rounded-full transition-colors ${
+              <motion.div
+                animate={apiHealthy === true ? { scale: [1, 1.2, 1] } : {}}
+                transition={{ repeat: Infinity, duration: 2 }}
+                className={`w-3 h-3 rounded-full transition-all ${
                   apiHealthy === true
-                    ? 'bg-success'
+                    ? 'bg-success shadow-lg'
                     : apiHealthy === false
                       ? 'bg-danger'
                       : 'bg-text-muted'
@@ -100,12 +104,12 @@ export default function Navbar() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 hover:bg-bg-main rounded-lg transition-colors"
+              className="md:hidden p-2 hover:bg-bg-section rounded-lg transition-colors"
             >
               {isMobileMenuOpen ? (
-                <X size={24} className="text-text-main" />
+                <X size={24} className="text-primary" />
               ) : (
-                <Menu size={24} className="text-text-main" />
+                <Menu size={24} className="text-primary" />
               )}
             </button>
           </div>
@@ -118,7 +122,7 @@ export default function Navbar() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-t border-border overflow-hidden"
+              className="md:hidden bg-bg-section/95 backdrop-blur-xl border-t border-border overflow-hidden"
             >
               <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col gap-4">
                 {navLinks.map((link) => (
@@ -129,7 +133,7 @@ export default function Navbar() {
                       setActiveLink(link.href.slice(1))
                       setIsMobileMenuOpen(false)
                     }}
-                    className="text-sm font-medium text-text-main hover:text-accent transition-colors py-2 border-l-2 border-transparent hover:border-accent pl-4"
+                    className="text-sm font-medium text-text-main hover:text-primary transition-colors py-2 border-l-2 border-transparent hover:border-primary pl-4"
                   >
                     {link.label}
                   </a>
@@ -145,3 +149,4 @@ export default function Navbar() {
     </>
   )
 }
+

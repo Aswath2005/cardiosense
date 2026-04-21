@@ -19,8 +19,17 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-gradient-to-b from-white to-[#F8FAFF] border-t border-[#E2E8F0]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <footer className="bg-gradient-to-b from-bg-section to-bg-main border-t border-border relative overflow-hidden">
+      {/* Background animation */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div
+          animate={{ y: [0, 50, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          className="absolute -bottom-20 right-1/4 w-96 h-96 bg-accent-alt/5 rounded-full blur-3xl"
+        />
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -37,11 +46,8 @@ export default function Footer() {
               viewport={{ once: true }}
               className="flex items-center justify-center gap-3 mb-4"
             >
-              <Heart className="w-8 h-8 text-[#EF4444]" />
-              <span
-                className="text-3xl font-bold text-[#0F172A]"
-                style={{ fontFamily: 'Playfair Display' }}
-              >
+              <Heart className="w-8 h-8 text-danger animate-pulse" />
+              <span className="text-3xl font-bold gradient-text font-playfair">
                 CardioSense AI
               </span>
             </motion.div>
@@ -51,8 +57,7 @@ export default function Footer() {
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.1 }}
               viewport={{ once: true }}
-              className="text-[#64748B] text-lg mb-2"
-              style={{ fontFamily: 'Inter' }}
+              className="text-text-muted text-lg mb-2 font-inter"
             >
               Heart Disease Risk Prediction System
             </motion.p>
@@ -62,8 +67,7 @@ export default function Footer() {
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
-              className="text-[#64748B] text-sm"
-              style={{ fontFamily: 'Inter' }}
+              className="text-text-muted text-sm font-inter"
             >
               Built by Team PulseML
             </motion.p>
@@ -75,9 +79,9 @@ export default function Footer() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
-            className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 max-w-3xl mx-auto"
+            className="bg-gradient-to-r from-primary/10 to-accent-alt/10 border border-primary/30 rounded-xl p-6 max-w-3xl mx-auto backdrop-blur-sm"
           >
-            <p className="text-[#0F172A] text-sm" style={{ fontFamily: 'Inter' }}>
+            <p className="text-text-main text-sm font-inter leading-relaxed">
               <strong>⚠️ Medical Disclaimer:</strong> CardioSense AI is an educational tool designed to demonstrate machine
               learning applications in healthcare. It is <strong>NOT</strong> a medical device and should never be used as a
               substitute for professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare
@@ -95,101 +99,85 @@ export default function Footer() {
           >
             {/* Resources */}
             <div>
-              <h3
-                className="font-semibold text-[#0F172A] mb-4 text-sm uppercase tracking-wide"
-                style={{ fontFamily: 'Inter' }}
-              >
+              <h3 className="font-semibold text-text-main mb-4 text-sm uppercase tracking-wide font-inter">
                 Resources
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-2">
                 {links.map((link) => (
-                  <li key={link.label}>
-                    <motion.a
-                      whileHover={{ x: 4 }}
+                  <li key={link.href}>
+                    <a
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#64748B] hover:text-[#2563EB] transition-colors text-sm"
-                      style={{ fontFamily: 'Inter' }}
+                      className="text-text-muted hover:text-primary transition-colors font-inter"
                     >
-                      {link.label} →
-                    </motion.a>
+                      {link.label}
+                    </a>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Dataset Info */}
+            {/* Quick Links */}
             <div>
-              <h3
-                className="font-semibold text-[#0F172A] mb-4 text-sm uppercase tracking-wide"
-                style={{ fontFamily: 'Inter' }}
-              >
-                Dataset
+              <h3 className="font-semibold text-text-main mb-4 text-sm uppercase tracking-wide font-inter">
+                Quick Links
               </h3>
-              <ul className="space-y-2 text-sm text-[#64748B]" style={{ fontFamily: 'Inter' }}>
-                <li><strong>Name:</strong> Cleveland Heart Disease</li>
-                <li><strong>Samples:</strong> 303 patients</li>
-                <li><strong>Features:</strong> 13 clinical attributes</li>
-                <li><strong>Source:</strong> UCI Machine Learning Repository</li>
+              <ul className="space-y-2">
+                <li>
+                  <a href="#home" className="text-text-muted hover:text-primary transition-colors font-inter">
+                    Home
+                  </a>
+                </li>
+                <li>
+                  <a href="#about" className="text-text-muted hover:text-primary transition-colors font-inter">
+                    About
+                  </a>
+                </li>
+                <li>
+                  <a href="#predict" className="text-text-muted hover:text-primary transition-colors font-inter">
+                    Predict
+                  </a>
+                </li>
               </ul>
             </div>
 
-            {/* Model Info */}
+            {/* Social Links */}
             <div>
-              <h3
-                className="font-semibold text-[#0F172A] mb-4 text-sm uppercase tracking-wide"
-                style={{ fontFamily: 'Inter' }}
-              >
-                Model
+              <h3 className="font-semibold text-text-main mb-4 text-sm uppercase tracking-wide font-inter">
+                Follow Us
               </h3>
-              <ul className="space-y-2 text-sm text-[#64748B]" style={{ fontFamily: 'Inter' }}>
-                <li><strong>Algorithm:</strong> Logistic Regression</li>
-                <li><strong>Training Accuracy:</strong> 83.51%</li>
-                <li><strong>Test Accuracy:</strong> 81.97%</li>
-                <li><strong>Overall:</strong> ~85% average</li>
-              </ul>
+              <div className="flex gap-4">
+                {socials.map((social) => {
+                  const Icon = social.icon;
+                  return (
+                    <motion.a
+                      key={social.label}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      whileHover={{ scale: 1.1, color: '#00D4FF' }}
+                      className="text-text-muted hover:text-primary transition-colors"
+                      title={social.label}
+                    >
+                      <Icon size={20} />
+                    </motion.a>
+                  );
+                })}
+              </div>
             </div>
           </motion.div>
 
-          {/* Social Links */}
+          {/* Bottom Bar */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
             viewport={{ once: true }}
-            className="flex items-center justify-center gap-6 pt-8 border-t border-[#E2E8F0]"
+            className="border-t border-border pt-8 text-center"
           >
-            {socials.map((social) => {
-              const Icon = social.icon;
-              return (
-                <motion.a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.2, rotate: 10 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-3 rounded-full bg-[#F8FAFF] hover:bg-[#2563EB] text-[#64748B] hover:text-white transition-all"
-                  aria-label={social.label}
-                >
-                  <Icon className="w-5 h-5" />
-                </motion.a>
-              );
-            })}
-          </motion.div>
-
-          {/* Copyright */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            viewport={{ once: true }}
-            className="text-center pt-8 border-t border-[#E2E8F0]"
-          >
-            <p className="text-[#64748B] text-xs" style={{ fontFamily: 'Inter' }}>
-              © {currentYear} CardioSense AI by Team PulseML. Built with Next.js, React, and TensorFlow.js. All rights
-              reserved.
+            <p className="text-text-muted text-sm font-inter">
+              © {currentYear} CardioSense AI. All rights reserved. Built with ❤️ by Team PulseML
             </p>
           </motion.div>
         </motion.div>

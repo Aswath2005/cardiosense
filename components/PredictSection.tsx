@@ -205,8 +205,17 @@ export default function PredictSection() {
   }
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#F8FAFF] to-[#EEF2FF]">
-      <div className="max-w-4xl mx-auto">
+    <section id="predict" className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-bg-section to-bg-main relative overflow-hidden">
+      {/* Background animation */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div
+          animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          className="absolute -top-40 right-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl"
+        />
+      </div>
+
+      <div className="max-w-4xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -215,12 +224,12 @@ export default function PredictSection() {
           className="text-center mb-12"
         >
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Activity className="w-8 h-8 text-[#2563EB]" />
-            <h2 className="text-4xl font-bold text-[#0F172A]" style={{ fontFamily: 'Playfair Display' }}>
+            <Activity className="w-8 h-8 text-primary" />
+            <h2 className="text-4xl font-bold gradient-text font-playfair">
               Risk Assessment
             </h2>
           </div>
-          <p className="text-lg text-[#64748B]" style={{ fontFamily: 'Inter' }}>
+          <p className="text-lg text-text-muted max-w-2xl mx-auto leading-relaxed">
             Enter patient data to predict heart disease risk using our trained ML model
           </p>
         </motion.div>
@@ -231,16 +240,16 @@ export default function PredictSection() {
           transition={{ duration: 0.6, delay: 0.1 }}
           viewport={{ once: true }}
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-lg p-8 border border-[#E2E8F0]"
+          className="card-dark backdrop-blur-sm bg-gradient-to-br from-bg-card to-bg-section"
         >
           {apiError && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-red-50 border border-[#EF4444] rounded-lg flex items-start gap-3"
+              className="mb-6 p-4 bg-danger/20 border border-danger rounded-lg flex items-start gap-3"
             >
-              <AlertCircle className="w-5 h-5 text-[#EF4444] flex-shrink-0 mt-0.5" />
-              <p className="text-[#EF4444]" style={{ fontFamily: 'Inter' }}>
+              <AlertCircle className="w-5 h-5 text-danger flex-shrink-0 mt-0.5" />
+              <p className="text-danger">
                 {apiError}
               </p>
             </motion.div>
@@ -261,8 +270,7 @@ export default function PredictSection() {
                 >
                   <label
                     htmlFor={config.key}
-                    className="block text-sm font-semibold text-[#0F172A] mb-2"
-                    style={{ fontFamily: 'Inter' }}
+                    className="block text-sm font-semibold text-text-main mb-2"
                   >
                     {config.label}
                   </label>
@@ -272,12 +280,11 @@ export default function PredictSection() {
                       name={config.key}
                       value={value}
                       onChange={handleChange}
-                      className={`w-full px-4 py-3 rounded-lg border transition-all ${
+                      className={`w-full px-4 py-3 rounded-lg border transition-all bg-bg-main text-text-main placeholder-text-muted focus:outline-none ${
                         error
-                          ? 'border-[#EF4444] bg-red-50 focus:ring-2 focus:ring-red-200'
-                          : 'border-[#E2E8F0] bg-white focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]'
-                      } outline-none`}
-                      style={{ fontFamily: 'Inter' }}
+                          ? 'border-danger focus:ring-2 focus:ring-danger/50'
+                          : 'border-border hover:border-primary/50 focus:ring-2 focus:ring-primary/30 focus:border-primary'
+                      }`}
                     >
                       <option value="">Select {config.label.toLowerCase()}</option>
                       {(config.options || []).map((option: any) => (
@@ -297,20 +304,18 @@ export default function PredictSection() {
                       max={(config as any).max}
                       step={(config as any).step || 1}
                       placeholder={`Enter ${config.label.toLowerCase()}`}
-                      className={`w-full px-4 py-3 rounded-lg border transition-all ${
+                      className={`w-full px-4 py-3 rounded-lg border transition-all bg-bg-main text-text-main placeholder-text-muted focus:outline-none ${
                         error
-                          ? 'border-[#EF4444] bg-red-50 focus:ring-2 focus:ring-red-200'
-                          : 'border-[#E2E8F0] bg-white focus:ring-2 focus:ring-[#2563EB] focus:border-[#2563EB]'
-                      } outline-none`}
-                      style={{ fontFamily: 'Inter' }}
+                          ? 'border-danger focus:ring-2 focus:ring-danger/50'
+                          : 'border-border hover:border-primary/50 focus:ring-2 focus:ring-primary/30 focus:border-primary'
+                      }`}
                     />
                   )}
                   {error && (
                     <motion.p
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="mt-1 text-sm text-[#EF4444]"
-                      style={{ fontFamily: 'Inter' }}
+                      className="mt-1 text-sm text-danger"
                     >
                       {error.message}
                     </motion.p>
@@ -325,8 +330,7 @@ export default function PredictSection() {
             disabled={loading}
             whileHover={{ scale: loading ? 1 : 1.02 }}
             whileTap={{ scale: loading ? 1 : 0.98 }}
-            className="w-full py-3 px-6 bg-[#2563EB] text-white font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            style={{ fontFamily: 'Inter' }}
+            className="btn-primary w-full flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -347,10 +351,10 @@ export default function PredictSection() {
           whileInView={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           viewport={{ once: true }}
-          className="mt-8 p-4 bg-blue-50 border border-[#2563EB] rounded-lg"
+          className="mt-8 p-4 bg-gradient-to-r from-primary/10 to-accent-alt/10 border border-primary/30 rounded-lg backdrop-blur-sm"
         >
-          <p className="text-sm text-[#1A3C6E]" style={{ fontFamily: 'Inter' }}>
-            <strong>Model Information:</strong> This prediction is based on a Logistic Regression model trained on the Cleveland Heart Disease dataset
+          <p className="text-sm text-text-muted leading-relaxed">
+            <strong className="text-primary">📊 Model Information:</strong> This prediction is based on a Logistic Regression model trained on the Cleveland Heart Disease dataset
             (303 patients, 13 clinical features) with approximately 85% accuracy.
           </p>
         </motion.div>

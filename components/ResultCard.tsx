@@ -32,16 +32,16 @@ export default function ResultCard({ result, onReanalyze }: ResultCardProps) {
   const actions = isHighRisk ? highRiskActions : lowRiskActions;
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#EEF2FF] to-[#F8FAFF]">
+    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-bg-section">
       <div className="max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className={`rounded-2xl p-8 sm:p-10 border-2 shadow-xl ${
+          className={`rounded-2xl p-8 sm:p-10 border-2 backdrop-blur-sm ${
             isHighRisk
-              ? 'bg-red-50 border-[#EF4444]'
-              : 'bg-green-50 border-[#10B981]'
+              ? 'bg-gradient-to-br from-danger/20 to-danger/5 border-danger'
+              : 'bg-gradient-to-br from-success/20 to-success/5 border-success'
           }`}
         >
           {/* Icon and Badge */}
@@ -52,9 +52,9 @@ export default function ResultCard({ result, onReanalyze }: ResultCardProps) {
               className="flex justify-center mb-4"
             >
               {isHighRisk ? (
-                <AlertCircle className="w-16 h-16 text-[#EF4444]" />
+                <AlertCircle className="w-16 h-16 text-danger" />
               ) : (
-                <CheckCircle className="w-16 h-16 text-[#10B981]" />
+                <CheckCircle className="w-16 h-16 text-success" />
               )}
             </motion.div>
 
@@ -64,10 +64,9 @@ export default function ResultCard({ result, onReanalyze }: ResultCardProps) {
               transition={{ delay: 0.1 }}
               className={`inline-block px-4 py-2 rounded-full font-semibold text-sm mb-4 ${
                 isHighRisk
-                  ? 'bg-red-100 text-[#EF4444]'
-                  : 'bg-green-100 text-[#10B981]'
+                  ? 'bg-danger/20 text-danger'
+                  : 'bg-success/20 text-success'
               }`}
-              style={{ fontFamily: 'Inter' }}
             >
               {isHighRisk ? '⚠️ HIGH RISK' : '✅ LOW RISK'}
             </motion.div>
@@ -77,9 +76,8 @@ export default function ResultCard({ result, onReanalyze }: ResultCardProps) {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
               className={`text-3xl sm:text-4xl font-bold mb-4 ${
-                isHighRisk ? 'text-[#EF4444]' : 'text-[#10B981]'
+                isHighRisk ? 'text-danger' : 'text-success'
               }`}
-              style={{ fontFamily: 'Playfair Display' }}
             >
               {isHighRisk ? 'High Cardiovascular Risk' : 'Low Cardiovascular Risk'}
             </motion.h2>
@@ -88,8 +86,7 @@ export default function ResultCard({ result, onReanalyze }: ResultCardProps) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="text-lg text-[#64748B] mb-6"
-              style={{ fontFamily: 'Inter' }}
+              className="text-lg text-text-muted mb-6"
             >
               {isHighRisk
                 ? 'Based on your clinical data, the model indicates elevated cardiovascular risk. Immediate medical consultation is recommended.'
@@ -99,68 +96,50 @@ export default function ResultCard({ result, onReanalyze }: ResultCardProps) {
 
           {/* Probability Bar */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
             className="mb-8"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-[#0F172A]" style={{ fontFamily: 'Inter' }}>
-                Risk Probability
-              </span>
-              <span
-                className={`font-bold text-lg ${
-                  isHighRisk ? 'text-[#EF4444]' : 'text-[#10B981]'
-                }`}
-                style={{ fontFamily: 'Inter' }}
-              >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-text-muted font-semibold">Risk Probability</span>
+              <span className={`text-2xl font-bold ${isHighRisk ? 'text-danger' : 'text-success'}`}>
                 {probability}%
               </span>
             </div>
-            <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div className="w-full bg-bg-card rounded-full h-4 overflow-hidden border border-border">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${probability}%` }}
-                transition={{ duration: 1, ease: 'easeOut' }}
+                transition={{ delay: 0.6, duration: 1.5, ease: 'easeOut' }}
                 className={`h-full ${
-                  isHighRisk ? 'bg-[#EF4444]' : 'bg-[#10B981]'
+                  isHighRisk
+                    ? 'bg-gradient-to-r from-danger to-danger/50'
+                    : 'bg-gradient-to-r from-success to-success/50'
                 }`}
               />
             </div>
           </motion.div>
 
-          {/* Actions */}
+          {/* Recommended Actions */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
             className="mb-8"
           >
-            <h3
-              className="font-semibold text-[#0F172A] mb-4 text-lg"
-              style={{ fontFamily: 'Inter' }}
-            >
-              Recommended Actions:
-            </h3>
+            <h3 className="font-bold text-text-main mb-4">Recommended Actions</h3>
             <ul className="space-y-3">
               {actions.map((action, index) => (
                 <motion.li
                   key={index}
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 + index * 0.08 }}
+                  transition={{ delay: 0.6 + index * 0.1 }}
                   className="flex items-start gap-3"
                 >
-                  <span
-                    className={`flex-shrink-0 w-5 h-5 rounded-full mt-0.5 flex items-center justify-center text-white text-xs font-bold ${
-                      isHighRisk ? 'bg-[#EF4444]' : 'bg-[#10B981]'
-                    }`}
-                  >
-                    {index + 1}
-                  </span>
-                  <span className="text-[#0F172A]" style={{ fontFamily: 'Inter' }}>
-                    {action}
-                  </span>
+                  <span className={`text-lg mt-1 ${isHighRisk ? '⚠️' : '✓'}`} />
+                  <span className="text-text-muted">{action}</span>
                 </motion.li>
               ))}
             </ul>
@@ -168,51 +147,26 @@ export default function ResultCard({ result, onReanalyze }: ResultCardProps) {
 
           {/* Disclaimer */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.85 }}
-            className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="bg-bg-card border border-border rounded-lg p-4 mb-6"
           >
-            <p className="text-sm text-[#0F172A]" style={{ fontFamily: 'Inter' }}>
-              <strong>⚠️ Medical Disclaimer:</strong> This prediction is for educational purposes only and should not
-              replace professional medical advice. Always consult with a qualified healthcare provider for proper diagnosis
-              and treatment.
+            <p className="text-xs text-text-muted">
+              <strong>📋 Disclaimer:</strong> This is an educational tool. Always consult with healthcare professionals for medical decisions.
             </p>
           </motion.div>
 
-          {/* Buttons */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+          {/* Reanalyze Button */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            onClick={onReanalyze}
+            className="btn-secondary w-full"
           >
-            <motion.button
-              onClick={onReanalyze}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`px-8 py-3 rounded-lg font-semibold transition-all ${
-                isHighRisk
-                  ? 'bg-[#EF4444] text-white hover:shadow-lg'
-                  : 'bg-[#10B981] text-white hover:shadow-lg'
-              }`}
-              style={{ fontFamily: 'Inter' }}
-            >
-              New Assessment
-            </motion.button>
-
-            <motion.a
-              href="https://www.heart.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-8 py-3 rounded-lg font-semibold text-[#0F172A] border-2 border-[#2563EB] text-center hover:bg-[#2563EB] hover:text-white transition-all"
-              style={{ fontFamily: 'Inter' }}
-            >
-              Learn More
-            </motion.a>
-          </motion.div>
+            Try Different Parameters
+          </motion.button>
         </motion.div>
       </div>
     </section>

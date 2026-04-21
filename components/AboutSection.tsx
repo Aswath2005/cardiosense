@@ -66,8 +66,17 @@ export default function AboutSection() {
   }
 
   return (
-    <section id="about" className="py-20 px-6 bg-white">
-      <div className="max-w-7xl mx-auto">
+    <section id="about" className="py-20 px-4 sm:px-6 bg-gradient-to-b from-bg-main to-bg-section relative overflow-hidden">
+      {/* Background animation */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div
+          animate={{ y: [0, -50, 0] }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+          className="absolute -top-20 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -76,9 +85,9 @@ export default function AboutSection() {
           className="text-center mb-16"
         >
           <h2 className="font-playfair text-4xl sm:text-5xl font-bold text-text-main mb-4">
-            About This Project
+            <span className="gradient-text">About This Project</span>
           </h2>
-          <p className="text-lg text-text-muted max-w-2xl mx-auto">
+          <p className="text-lg text-text-muted max-w-2xl mx-auto leading-relaxed">
             Built by Team PulseML as a mini research project, CardioSense AI compares multiple machine learning approaches for cardiovascular risk prediction.
           </p>
         </motion.div>
@@ -95,26 +104,30 @@ export default function AboutSection() {
             <motion.div
               key={model.name}
               variants={itemVariants}
-              whileHover={{ y: -6 }}
-              className="relative bg-white border border-border rounded-2xl p-8 shadow-sm hover:shadow-xl transition-shadow"
+              whileHover={{ y: -8, borderColor: 'rgba(0, 212, 255, 0.8)' }}
+              className="relative card-dark group"
             >
               {/* Badge for Best Model */}
               {model.isBest && (
-                <div className="absolute top-4 right-4 flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="absolute top-4 right-4 flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-primary to-accent-alt text-bg-main rounded-full text-xs font-semibold shadow-glow"
+                >
                   <Award size={14} />
                   Best Model 🏆
-                </div>
+                </motion.div>
               )}
 
-              <div className="text-5xl mb-4">{model.icon}</div>
+              <div className="text-5xl mb-4 group-hover:scale-110 transition-transform">{model.icon}</div>
               <h3 className="text-xl font-bold text-text-main mb-3">{model.name}</h3>
               <p className="text-text-muted text-sm mb-6 leading-relaxed">
                 {model.description}
               </p>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pt-4 border-t border-border">
                 <span className="text-sm text-text-muted">Accuracy</span>
-                <span className="text-2xl font-bold text-accent">{model.accuracy}</span>
+                <span className="text-2xl font-bold gradient-text">{model.accuracy}</span>
               </div>
             </motion.div>
           ))}
@@ -125,7 +138,7 @@ export default function AboutSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-bg-section rounded-2xl p-8 md:p-12"
+          className="card-dark bg-gradient-to-br from-bg-card to-bg-section"
         >
           <h3 className="text-2xl font-bold text-text-main mb-8 text-center">
             How It Works
@@ -142,19 +155,23 @@ export default function AboutSection() {
                 className="flex items-center flex-1 w-full md:w-auto"
               >
                 <div className="flex flex-col items-center flex-1">
-                  <div className="w-12 h-12 rounded-full bg-accent text-white font-bold flex items-center justify-center text-lg mb-3">
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-accent-alt text-text-main font-bold flex items-center justify-center text-lg mb-3 shadow-glow"
+                  >
                     {index + 1}
-                  </div>
+                  </motion.div>
                   <p className="text-sm font-semibold text-text-main text-center">
                     {step}
                   </p>
                 </div>
-
                 {index < steps.length - 1 && (
                   <motion.div
-                    animate={{ scaleX: [0, 1] }}
-                    transition={{ duration: 1, delay: index * 0.2 }}
-                    className="hidden md:block h-1 flex-1 bg-gradient-to-r from-accent to-transparent ml-4"
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 + 0.2 }}
+                    className="hidden md:block h-1 flex-1 bg-gradient-to-r from-primary to-accent-alt mx-4 origin-left"
                   />
                 )}
               </motion.div>
