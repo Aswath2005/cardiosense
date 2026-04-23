@@ -22,13 +22,13 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'CardioSense AI — Heart Attack Risk Prediction',
+  title: 'CardioSense — Heart Attack Risk Prediction',
   description: 'Early detection saves lives. Know your heart before it\'s too late.',
-  keywords: ['heart disease', 'risk prediction', 'AI', 'cardiology', 'health'],
-  authors: [{ name: 'Team PulseML' }],
+  keywords: ['heart disease', 'risk prediction', 'cardiology', 'health'],
+  authors: [{ name: 'CardioSense' }],
   openGraph: {
-    title: 'CardioSense AI',
-    description: 'Predict your heart attack risk with AI-powered analysis',
+    title: 'CardioSense',
+    description: 'Predict your heart attack risk with machine learning analysis',
     type: 'website',
   },
 }

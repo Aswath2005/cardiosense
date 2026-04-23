@@ -1,5 +1,5 @@
 /**
- * CardioSense AI — Type Definitions
+ * CardioSense — Type Definitions
  * TypeScript interfaces for patient data, predictions, and form state
  */
 

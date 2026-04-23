@@ -1,5 +1,5 @@
 """
-CardioSense AI — FastAPI Backend
+CardioSense — FastAPI Backend
 Provides REST API endpoints for heart disease risk prediction.
 Routes:
   GET  /           → API status
@@ -17,7 +17,7 @@ from model import ModelLoader, predict
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="CardioSense AI API",
+    title="CardioSense API",
     description="Heart Attack Risk Prediction using Logistic Regression",
     version="1.0.0"
 )
@@ -27,7 +27,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
+        "http://localhost:3002",
         "http://127.0.0.1:3000",
+        "http://127.0.0.1:3002",
         "https://*"  # Allow all HTTPS origins for production
     ],
     allow_credentials=True,
@@ -37,7 +39,7 @@ app.add_middleware(
 
 # Initialize model loader (global)
 model_loader = ModelLoader(
-    model_path=os.getenv("MODEL_PATH", "model.pkl"),
+    model_path=os.getenv("MODEL_PATH", "heart_disease_model.keras"),
     scaler_path=os.getenv("SCALER_PATH", "scaler.pkl")
 )
 
@@ -83,7 +85,7 @@ def read_root() -> dict:
     Returns:
         dict: Status message
     """
-    return {"status": "CardioSense AI API running"}
+    return {"status": "CardioSense API running"}
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -120,15 +122,26 @@ def predict_risk(patient_data: PatientData) -> PredictionResponse:
     if not model_loader.is_loaded():
         raise HTTPException(
             status_code=500,
-            detail="Model not loaded. Please ensure model.pkl and scaler.pkl exist in the backend directory."
+            detail="Model not loaded. Please ensure heart_disease_model.keras and scaler.pkl exist in the backend directory."
         )
     
     try:
         # Convert Pydantic model to dict
         input_dict = patient_data.model_dump()
         
+        # Debug: Log the input
+        print(f"\n📥 Prediction Request:")
+        for key, value in input_dict.items():
+            print(f"   {key}: {value}")
+        
         # Make prediction
         result = predict(input_dict, model_loader)
+        
+        # Debug: Log detailed result
+        print(f"✅ Prediction Result:")
+        print(f"   prediction (0=no, 1=yes): {result.get('prediction')}")
+        print(f"   probability of disease: {result.get('probability') * 100:.2f}%")
+        print(f"   risk_level: {result.get('risk_level')}\n")
         
         return PredictionResponse(**result)
     
@@ -143,8 +156,7 @@ def predict_risk(patient_data: PatientData) -> PredictionResponse:
 async def startup_event():
     """Run on server startup."""
     print("=" * 60)
-    print("CardioSense AI — FastAPI Backend")
-    print("Team PulseML")
+    print("CardioSense — FastAPI Backend")
     print("=" * 60)
     print(f"✅ API initialized")
     if model_loader.is_loaded():

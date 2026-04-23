@@ -1,5 +1,5 @@
 /**
- * CardioSense AI — API Client
+ * CardioSense — API Client
  * Functions to communicate with the FastAPI backend
  */
 

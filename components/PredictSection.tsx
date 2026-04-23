@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import ResultCard from './ResultCard';
 import { predictHeartRisk } from '@/lib/api';
+import { savePrediction, supabase } from '@/lib/supabase';
+import { useMockAuth } from '@/lib/mockAuth';
 import type { PatientData as PatientDataType } from '@/lib/types';
 
 interface FormData {
@@ -34,6 +36,7 @@ interface ValidationError {
 }
 
 export default function PredictSection() {
+  const mockAuth = useMockAuth();
   const [formData, setFormData] = useState<FormData>({
     age: '',
     sex: '',
@@ -54,16 +57,46 @@ export default function PredictSection() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<DisplayResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const resultRef = useRef<HTMLDivElement>(null);
+
+  // Check auth status on mount
+  useEffect(() => {
+    const checkAuth = async () => {
+      // Wait for mock auth to initialize
+      if (mockAuth.isLoading) {
+        return;
+      }
+
+      // Check mock auth first
+      if (mockAuth.user) {
+        setUser({
+          id: mockAuth.user.id,
+          email: mockAuth.user.email,
+        });
+        return;
+      }
+
+      // Check Supabase session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          email: session.user.email,
+        });
+      }
+    };
+    checkAuth();
+  }, [mockAuth.user, mockAuth.isLoading]);
 
   const fieldConfigs = [
     { key: 'age', label: 'Age', type: 'number', min: 18, max: 120, required: true },
     { key: 'sex', label: 'Sex', type: 'select', options: [{ value: '0', label: 'Female' }, { value: '1', label: 'Male' }], required: true },
     { key: 'cp', label: 'Chest Pain Type', type: 'select', options: [
-      { value: '0', label: 'Typical Angina' },
+      { value: '0', label: 'Asymptomatic' },
       { value: '1', label: 'Atypical Angina' },
       { value: '2', label: 'Non-anginal Pain' },
-      { value: '3', label: 'Asymptomatic' }
+      { value: '3', label: 'Typical Angina' }
     ], required: true },
     { key: 'trestbps', label: 'Resting BP (mmHg)', type: 'number', min: 80, max: 200, required: true },
     { key: 'chol', label: 'Cholesterol (mg/dl)', type: 'number', min: 100, max: 400, required: true },
@@ -165,6 +198,15 @@ export default function PredictSection() {
         probability: data.probability,
       });
 
+      // Save prediction to database if user is logged in
+      if (user?.id) {
+        const { error: saveError } = await savePrediction(user.id, numericData, data);
+        if (saveError) {
+          console.error('Failed to save prediction:', saveError);
+          // Don't block the UI — just log silently
+        }
+      }
+
       setTimeout(() => {
         resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 200);
@@ -200,6 +242,23 @@ export default function PredictSection() {
     return (
       <div ref={resultRef}>
         <ResultCard result={result} onReanalyze={handleReanalyze} />
+        
+        {/* Info banner for non-logged-in users */}
+        {!user && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-4 p-4 bg-accent/10 border border-accent/30 rounded-xl"
+          >
+            <p className="text-sm text-text-main">
+              💡 <strong>Sign in to save</strong> your prediction history and track your cardiovascular health over time.{' '}
+              <a href="/login" className="text-accent hover:underline font-medium">
+                Sign In →
+              </a>
+            </p>
+          </motion.div>
+        )}
       </div>
     );
   }

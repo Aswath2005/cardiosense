@@ -1,6 +1,6 @@
 """
-CardioSense AI — Model Loading and Prediction
-Loads the trained Logistic Regression model and StandardScaler,
+CardioSense — Model Loading and Prediction
+Loads the trained KNN model (via Keras) and StandardScaler,
 and provides prediction functionality for the FastAPI backend.
 """
 
@@ -9,23 +9,32 @@ import numpy as np
 from typing import Dict, Any
 import os
 
+try:
+    import tensorflow as tf
+    from tensorflow import keras
+    KERAS_AVAILABLE = True
+except ImportError:
+    KERAS_AVAILABLE = False
+    print("⚠️  TensorFlow/Keras not available, some features may not work")
+
 
 class ModelLoader:
     """Load and manage ML model and scaler."""
     
-    def __init__(self, model_path: str = "model.pkl", scaler_path: str = "scaler.pkl"):
+    def __init__(self, model_path: str = "heart_disease_model.keras", scaler_path: str = "scaler.pkl"):
         """
         Initialize model loader.
         
         Args:
-            model_path: Path to the trained model file
-            scaler_path: Path to the StandardScaler file
+            model_path: Path to the trained Keras model file (.keras)
+            scaler_path: Path to the StandardScaler file (.pkl)
         """
         self.model_path = model_path
         self.scaler_path = scaler_path
         self.model = None
         self.scaler = None
         self.loaded = False
+        self.model_type = "keras"  # Track model type
         
         self.load_model()
     
@@ -46,14 +55,19 @@ class ModelLoader:
                 print(f"⚠️  Scaler file not found: {self.scaler_path}")
                 return False
             
-            # Load model and scaler
-            self.model = joblib.load(self.model_path)
-            self.scaler = joblib.load(self.scaler_path)
-            self.loaded = True
+            # Load Keras model
+            if KERAS_AVAILABLE:
+                self.model = keras.models.load_model(self.model_path)
+                print(f"✅ Keras model loaded: {self.model_path}")
+            else:
+                print(f"❌ TensorFlow/Keras not available, cannot load {self.model_path}")
+                return False
             
-            print(f"✅ Model loaded: {self.model_path}")
+            # Load scaler
+            self.scaler = joblib.load(self.scaler_path)
             print(f"✅ Scaler loaded: {self.scaler_path}")
             
+            self.loaded = True
             return True
         
         except Exception as e:
@@ -67,7 +81,7 @@ class ModelLoader:
 
 def predict(input_data: Dict[str, Any], model_loader: ModelLoader) -> Dict[str, Any]:
     """
-    Make a prediction using the loaded model.
+    Make a prediction using the loaded Keras model.
     
     Args:
         input_data: Dictionary with 13 feature values:
@@ -119,10 +133,36 @@ def predict(input_data: Dict[str, Any], model_loader: ModelLoader) -> Dict[str, 
         
         # Scale features
         features_scaled = model_loader.scaler.transform(features)
+        print(f"   Scaled features: {features_scaled[0]}")
         
-        # Make prediction
-        prediction = int(model_loader.model.predict(features_scaled)[0])
-        probability = float(model_loader.model.predict_proba(features_scaled)[0][1])
+        # Make prediction using Keras model
+        # Keras model outputs shape (1, 1) - single sigmoid probability
+        try:
+            prediction_proba = model_loader.model.predict(features_scaled, verbose=0)
+            print(f"   Raw model output shape: {prediction_proba.shape}")
+            print(f"   Raw model output: {prediction_proba}")
+        except Exception as pred_error:
+            raise ValueError(f"Keras model prediction failed: {str(pred_error)}")
+        
+        # Extract probability from the output
+        try:
+            # Model outputs shape (1, 1) with sigmoid activation
+            if prediction_proba.shape == (1, 1):
+                probability = float(prediction_proba[0, 0])
+            elif len(prediction_proba.shape) == 1:
+                probability = float(prediction_proba[0])
+            else:
+                # Fallback for other shapes
+                probability = float(prediction_proba.flatten()[0])
+        except Exception as shape_error:
+            raise ValueError(f"Error extracting probability from model output: {str(shape_error)}")
+        
+        # IMPORTANT: Model outputs P(no disease), so invert to get P(disease)
+        probability = 1.0 - probability
+        print(f"   Inverted probability (P(disease)): {probability}")
+        
+        # Make binary prediction using 0.5 threshold
+        prediction = int(probability > 0.5)
         
         # Format probability to 2 decimal places
         probability_rounded = round(probability, 2)

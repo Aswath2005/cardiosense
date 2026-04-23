@@ -1,8 +1,8 @@
-# CardioSense AI — Heart Attack Risk Prediction
+# CardioSense — Heart Attack Risk Prediction
 
 ## Overview
 
-**CardioSense AI** is a production-grade fullstack web application that predicts cardiovascular disease risk using Logistic Regression trained on the Cleveland Heart Disease dataset. Built by **Team PulseML**, this application combines a robust ML backend with a modern, responsive frontend to provide instant heart attack risk assessments.
+**CardioSense** is a production-grade fullstack web application that predicts cardiovascular disease risk using Logistic Regression trained on the Cleveland Heart Disease dataset. This application combines a robust ML backend with a modern, responsive frontend to provide instant heart attack risk assessments.
 
 ### Key Features
 - 🔬 **Logistic Regression Model**: Trained on 303 patient records from the Cleveland Heart Disease dataset
@@ -39,12 +39,13 @@ The Cleveland Heart Disease dataset contains **13 clinical features** and 1 targ
 | `thalach` | int | Maximum heart rate achieved |
 | `exang` | int | Exercise-induced angina (1=Yes, 0=No) |
 | `oldpeak` | float | ST depression induced by exercise |
-| `slope` | int | ST slope (0=Downsloping, 1=Flat, 2=Upsloping) |
+| `slope` | int | ST slope (1=Upsloping, 2=Flat, 3=Downsloping) |
 | `ca` | int | Number of major vessels (0–3) |
-| `thal` | int | Thalassemia (1=Normal, 2=Fixed defect, 3=Reversible defect) |
+| `thal` | int | Thalassemia (3=Normal, 6=Fixed defect, 7=Reversible defect) |
 | **target** | int | **1=Heart Disease, 0=No Disease** |
 
-**Dataset**: 303 patients, 165 with heart disease, 138 without
+**Dataset**: 303 patients, 165 with heart disease, 138 without  
+**Note**: Using Kaggle dataset format which encodes `thal` as 3,6,7
 
 ## Setup Instructions
 
@@ -147,7 +148,7 @@ Returns API status.
 **Response**:
 ```json
 {
-  "status": "CardioSense AI API running"
+  "status": "CardioSense API running"
 }
 ```
 
@@ -408,9 +409,9 @@ NEXT_PUBLIC_API_URL=https://your-backend-url.com
 
 ⚠️ **This application is for educational and demonstration purposes only.**
 
-- **Not a Medical Device**: CardioSense AI is not FDA-approved or clinically validated.
+- **Not a Medical Device**: CardioSense is not FDA-approved or clinically validated.
 - **Not Medical Advice**: Predictions should never replace consultation with a qualified cardiologist.
-- **Research Project**: Built as a mini research project by Team PulseML to demonstrate ML + web integration.
+- **Research Project**: Built as an open-source project to demonstrate ML + web integration.
 
 **Always consult a healthcare professional** for accurate diagnosis and treatment.
 
@@ -429,7 +430,7 @@ NEXT_PUBLIC_API_URL=https://your-backend-url.com
 
 ## Team
 
-**CardioSense AI** is developed by **Team PulseML** as a mini research project demonstrating:
+**CardioSense** is an open-source project demonstrating:
 - End-to-end ML pipeline (Colab → model export → API integration)
 - Full-stack JavaScript/Python integration
 - Production-grade UI/UX with modern frameworks
@@ -458,5 +459,4 @@ This project is open-source and available under the **MIT License**. Feel free t
 ---
 
 **Last Updated**: April 2025  
-**Version**: 1.0.0  
-**Maintained by**: Team PulseML
+**Version**: 1.0.0

@@ -88,7 +88,7 @@ export default function AboutSection() {
             <span className="gradient-text">About This Project</span>
           </h2>
           <p className="text-lg text-text-muted max-w-2xl mx-auto leading-relaxed">
-            Built by Team PulseML as a mini research project, CardioSense AI compares multiple machine learning approaches for cardiovascular risk prediction.
+            CardioSense is an open-source project that uses machine learning to predict cardiovascular disease risk and save lives.
           </p>
         </motion.div>
 

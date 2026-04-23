@@ -1,5 +1,5 @@
 """
-CardioSense AI — Local Model Training Script
+CardioSense — Local Model Training Script
 Trains a Logistic Regression model on the Cleveland Heart Disease dataset
 and exports model.pkl and scaler.pkl for the FastAPI backend.
 """
@@ -29,14 +29,53 @@ def load_and_preprocess_data(csv_path: str = "heart.csv"):
     df = pd.read_csv(csv_path)
     print(f"✅ Dataset loaded! Shape: {df.shape}")
     
+    # Replace '?' with NaN
+    df = df.replace('?', np.nan)
+    
     # Check for missing values
     if df.isnull().sum().any():
-        print("⚠️  Warning: Missing values found. Dropping rows with NaN...")
+        print(f"⚠️  Warning: Missing values found. Dropping rows with NaN...")
+        print(f"   Before: {len(df)} rows")
         df = df.dropna()
+        print(f"   After: {len(df)} rows")
+    
+    # Convert all columns to numeric
+    for col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    df = df.dropna()  # Drop any remaining NaN from conversion
     
     # Separate features and target
-    X = df.drop('target', axis=1)
-    y = df['target']
+    feature_order = [
+        'age', 'sex', 'cp', 'trestbps', 'chol', 'fbs', 'restecg',
+        'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal'
+    ]
+    X = df[feature_order].copy()  # Explicitly order columns to match prediction order
+    y = df['target'].copy()
+    
+    # Convert target to binary (0 or 1)
+    # The UCI dataset has values 0-4, where 0 = no disease, 1-4 = disease
+    y = (y > 0).astype(int)
+    
+    # Normalize feature values to match Kaggle/frontend format
+    # CP: Convert from 1-4 to 0-3 range
+    if X['cp'].max() > 3:
+        print("⚙️  Normalizing cp from 1-4 to 0-3...")
+        X['cp'] = X['cp'] - 1
+    
+    # Slope: Ensure 1-3 range (no 0)
+    if X['slope'].min() == 0:
+        print("⚙️  Normalizing slope from 0-2 to 1-3...")
+        X['slope'] = X['slope'] + 1
+    
+    # Thal: Map to Kaggle format (3, 6, 7)
+    print(f"⚙️  Thal unique values before mapping: {sorted(X['thal'].unique())}")
+    if X['thal'].max() <= 3:
+        print("⚙️  Normalizing thal from 0-3 to Kaggle format (3, 6, 7)...")
+        # UCI format: 0=no thal issue, 1=normal, 2=fixed, 3=reversible
+        # Kaggle format: 3=normal, 6=fixed, 7=reversible
+        thal_mapping = {0: 3, 1: 3, 2: 6, 3: 7}  # 0 and 1 both -> normal
+        X['thal'] = X['thal'].map(thal_mapping)
+    print(f"⚙️  Thal unique values after mapping: {sorted(X['thal'].unique())}")
     
     print(f"📊 Features: {X.shape[1]} | Target classes: {y.nunique()}")
     
@@ -140,9 +179,10 @@ def test_sample_prediction(model, scaler):
         model: Trained model
         scaler: StandardScaler instance
     """
-    # Sample input: age=41, sex=0, cp=1, trestbps=130, chol=204, fbs=0, 
-    #              restecg=0, thalach=172, exang=0, oldpeak=1.4, slope=2, ca=0, thal=2
-    sample_input = np.array([[41, 0, 1, 130, 204, 0, 0, 172, 0, 1.4, 2, 0, 2]])
+    # Sample input (Kaggle format): age=41, sex=0, cp=1, trestbps=130, chol=204, 
+    #                               fbs=0, restecg=0, thalach=172, exang=0, oldpeak=1.4, 
+    #                               slope=2, ca=0, thal=3
+    sample_input = np.array([[41, 0, 1, 130, 204, 0, 0, 172, 0, 1.4, 2, 0, 3]])
     sample_scaled = scaler.transform(sample_input)
     
     prediction = model.predict(sample_scaled)[0]
@@ -150,7 +190,7 @@ def test_sample_prediction(model, scaler):
     
     print(f"\n🩺 Sample Prediction Test")
     print(f"Input: age=41, sex=0, cp=1, trestbps=130, chol=204, fbs=0, restecg=0")
-    print(f"       thalach=172, exang=0, oldpeak=1.4, slope=2, ca=0, thal=2")
+    print(f"       thalach=172, exang=0, oldpeak=1.4, slope=2, ca=0, thal=3")
     print(f"\nPrediction: {prediction}")
     print(f"Result: {'Heart Disease Detected' if prediction == 1 else 'No Heart Disease'}")
     print(f"Probability: {probability:.4f} ({probability * 100:.2f}%)")
@@ -159,8 +199,7 @@ def test_sample_prediction(model, scaler):
 def main():
     """Main training pipeline."""
     print("=" * 60)
-    print("CardioSense AI — Model Training")
-    print("Team PulseML")
+    print("CardioSense — Model Training")
     print("=" * 60)
     
     # Load and preprocess

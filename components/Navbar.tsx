@@ -1,15 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Menu, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Menu, X, LogOut } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { checkHealth } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
+import { useMockAuth } from '@/lib/mockAuth'
+import { AuthUser } from '@/lib/database.types'
 
 export default function Navbar() {
+  const router = useRouter()
+  const mockAuth = useMockAuth()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [activeLink, setActiveLink] = useState('home')
   const [apiHealthy, setApiHealthy] = useState<boolean | null>(null)
+  const [user, setUser] = useState<AuthUser | null>(null)
 
   // Check scroll position
   useEffect(() => {
@@ -35,12 +42,57 @@ export default function Navbar() {
     return () => clearInterval(interval)
   }, [])
 
+  // Auth listener for real-time auth state changes
+  useEffect(() => {
+    // Wait for mock auth to initialize
+    if (mockAuth.isLoading) {
+      return;
+    }
+
+    // Check for mock auth first (if network is down)
+    const mockUser = mockAuth.user
+    if (mockUser) {
+      setUser({
+        id: mockUser.id,
+        email: mockUser.email,
+      })
+    } else {
+      // Check Supabase session
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            email: session.user.email,
+          })
+        } else {
+          setUser(null)
+        }
+      })
+
+      return () => subscription?.unsubscribe()
+    }
+  }, [mockAuth.user, mockAuth.isLoading])
+
   const navLinks = [
     { href: '#home', label: 'Home' },
     { href: '#about', label: 'About' },
     { href: '#predict', label: 'Predict' },
     { href: '#results', label: 'Results' },
   ]
+
+  const handleSignOut = async () => {
+    // Try real Supabase first
+    const mockUser = mockAuth.user
+    if (mockUser) {
+      // Using mock auth - sign out locally
+      await mockAuth.signOut()
+    } else {
+      // Using real Supabase
+      await supabase.auth.signOut()
+    }
+    setUser(null)
+    router.push('/')
+  }
 
   return (
     <>
@@ -81,8 +133,51 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right section: Health indicator + Mobile menu */}
+          {/* Right section: Auth buttons + Health indicator + Mobile menu */}
           <div className="flex items-center gap-4">
+            {/* Auth Buttons - Desktop */}
+            <div className="hidden md:flex items-center gap-3">
+              {user ? (
+                <>
+                  {/* User Avatar */}
+                  <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-bg-main font-bold text-sm">
+                    {user.email?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  {/* Dashboard Link */}
+                  <button
+                    onClick={() => router.push('/dashboard')}
+                    className="text-sm font-medium text-accent hover:text-primary transition-colors"
+                  >
+                    Dashboard
+                  </button>
+                  {/* Sign Out Button */}
+                  <button
+                    onClick={handleSignOut}
+                    className="p-2 hover:bg-bg-section rounded-lg transition-colors text-text-muted hover:text-accent"
+                  >
+                    <LogOut size={18} />
+                  </button>
+                </>
+              ) : (
+                <>
+                  {/* Sign In Button */}
+                  <button
+                    onClick={() => router.push('/login')}
+                    className="px-4 py-2 rounded-xl border border-accent text-accent hover:bg-accent/10 transition-all text-sm font-medium"
+                  >
+                    Sign In
+                  </button>
+                  {/* Sign Up Button */}
+                  <button
+                    onClick={() => router.push('/signup')}
+                    className="px-4 py-2 rounded-xl bg-accent text-bg-main hover:shadow-lg hover:shadow-accent/20 transition-all text-sm font-medium"
+                  >
+                    Sign Up
+                  </button>
+                </>
+              )}
+            </div>
+
             {/* API Health Indicator */}
             <div className="flex items-center gap-2">
               <motion.div
@@ -138,6 +233,52 @@ export default function Navbar() {
                     {link.label}
                   </a>
                 ))}
+                
+                {/* Mobile Auth Section */}
+                <div className="border-t border-border pt-4 mt-4 flex flex-col gap-3">
+                  {user ? (
+                    <>
+                      <div className="text-xs text-text-muted mb-2">{user.email}</div>
+                      <button
+                        onClick={() => {
+                          router.push('/dashboard')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="text-sm font-medium text-accent hover:text-primary transition-colors py-2 text-left"
+                      >
+                        Dashboard
+                      </button>
+                      <button
+                        onClick={handleSignOut}
+                        className="text-sm font-medium text-text-muted hover:text-accent transition-colors py-2 text-left flex items-center gap-2"
+                      >
+                        <LogOut size={16} />
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => {
+                          router.push('/login')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="px-4 py-2 rounded-xl border border-accent text-accent hover:bg-accent/10 transition-all text-sm font-medium"
+                      >
+                        Sign In
+                      </button>
+                      <button
+                        onClick={() => {
+                          router.push('/signup')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="px-4 py-2 rounded-xl bg-accent text-bg-main hover:shadow-lg hover:shadow-accent/20 transition-all text-sm font-medium"
+                      >
+                        Sign Up
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}

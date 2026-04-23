@@ -48,7 +48,7 @@ export default function Footer() {
             >
               <Heart className="w-8 h-8 text-danger animate-pulse" />
               <span className="text-3xl font-bold gradient-text font-playfair">
-                CardioSense AI
+                CardioSense
               </span>
             </motion.div>
 
@@ -69,7 +69,7 @@ export default function Footer() {
               viewport={{ once: true }}
               className="text-text-muted text-sm font-inter"
             >
-              Built by Team PulseML
+              Open source health prediction tool
             </motion.p>
           </div>
 
@@ -82,7 +82,7 @@ export default function Footer() {
             className="bg-gradient-to-r from-primary/10 to-accent-alt/10 border border-primary/30 rounded-xl p-6 max-w-3xl mx-auto backdrop-blur-sm"
           >
             <p className="text-text-main text-sm font-inter leading-relaxed">
-              <strong>⚠️ Medical Disclaimer:</strong> CardioSense AI is an educational tool designed to demonstrate machine
+              <strong>⚠️ Medical Disclaimer:</strong> CardioSense is an educational tool designed to demonstrate machine
               learning applications in healthcare. It is <strong>NOT</strong> a medical device and should never be used as a
               substitute for professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare
               professionals for any health concerns.
@@ -177,7 +177,7 @@ export default function Footer() {
             className="border-t border-border pt-8 text-center"
           >
             <p className="text-text-muted text-sm font-inter">
-              © {currentYear} CardioSense AI. All rights reserved. Built with ❤️ by Team PulseML
+              © {currentYear} CardioSense. All rights reserved.
             </p>
           </motion.div>
         </motion.div>

@@ -73,7 +73,7 @@ export default function HeroSection() {
             >
               Predict Your
               <span className="gradient-text block">Heart Attack Risk</span>
-              with AI
+              with ML
             </motion.h1>
 
             {/* Subtext */}
