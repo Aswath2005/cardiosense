@@ -38,8 +38,24 @@ export function useMockAuth() {
       throw new Error('Password must be at least 6 characters')
     }
 
+    // Store user credentials in localStorage
+    const storedUsers = JSON.parse(localStorage.getItem('mock_auth_users') || '{}')
+    
+    if (storedUsers[email]) {
+      throw new Error('Email already registered')
+    }
+
+    const mockUserId = `mock_${Date.now()}`
+    storedUsers[email] = {
+      id: mockUserId,
+      password,
+      fullName,
+    }
+
+    localStorage.setItem('mock_auth_users', JSON.stringify(storedUsers))
+
     const mockUser: MockAuthUser = {
-      id: `mock_${Date.now()}`,
+      id: mockUserId,
       email,
     }
 
@@ -55,8 +71,25 @@ export function useMockAuth() {
       throw new Error('Email and password required')
     }
 
+    // Validate password strength (minimum 6 characters)
+    if (password.length < 6) {
+      throw new Error('Password must be at least 6 characters')
+    }
+
+    // Retrieve stored user credentials
+    const storedUsers = JSON.parse(localStorage.getItem('mock_auth_users') || '{}')
+    
+    if (!storedUsers[email]) {
+      throw new Error('Invalid email or password')
+    }
+
+    // Verify password matches
+    if (storedUsers[email].password !== password) {
+      throw new Error('Invalid email or password')
+    }
+
     const mockUser: MockAuthUser = {
-      id: `mock_${Date.now()}`,
+      id: storedUsers[email].id,
       email,
     }
 

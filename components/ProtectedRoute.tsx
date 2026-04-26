@@ -1,21 +1,52 @@
 'use client'
 
 import { useAuth } from './AuthContext'
+import { useMockAuth } from '@/lib/mockAuth'
+import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
+  const mockAuth = useMockAuth()
   const router = useRouter()
+  const [hasSupabaseSession, setHasSupabaseSession] = useState(false)
+  const [isSessionChecked, setIsSessionChecked] = useState(false)
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
+    const checkSupabaseSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        setHasSupabaseSession(Boolean(session))
+      } catch {
+        setHasSupabaseSession(false)
+      } finally {
+        setIsSessionChecked(true)
+      }
+    }
+
+    checkSupabaseSession()
+  }, [])
+
+  useEffect(() => {
+    // Wait for both auth systems to load
+    if (isLoading || mockAuth.isLoading || !isSessionChecked) {
+      return
+    }
+
+    // Check if user is authenticated via mock auth, AuthContext, or Supabase session
+    const isMockAuthenticatedUser = mockAuth.user !== null
+    const isAuthContextAuthenticatedUser = isAuthenticated
+    const isSupabaseAuthenticatedUser = hasSupabaseSession
+
+    if (!isMockAuthenticatedUser && !isAuthContextAuthenticatedUser && !isSupabaseAuthenticatedUser) {
       router.push('/login')
     }
-  }, [isAuthenticated, isLoading, router])
+  }, [isAuthenticated, isLoading, mockAuth.user, mockAuth.isLoading, hasSupabaseSession, isSessionChecked, router])
 
-  if (isLoading) {
+  // Show loading while checking auth
+  if (isLoading || mockAuth.isLoading || !isSessionChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-main">
         <motion.div
@@ -27,7 +58,8 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     )
   }
 
-  if (!isAuthenticated) {
+  // If neither auth method says they're authenticated, don't render
+  if (!isAuthenticated && !mockAuth.user && !hasSupabaseSession) {
     return null
   }
 

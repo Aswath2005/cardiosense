@@ -2,16 +2,27 @@
 
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { useAuth } from '@/components/AuthContext'
+import { useMockAuth } from '@/lib/mockAuth'
+import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { LogOut } from 'lucide-react'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth()
+  const mockAuth = useMockAuth()
   const router = useRouter()
 
-  const handleLogout = () => {
+  // Get user info from either AuthContext or MockAuth
+  const displayUser = user || (mockAuth.user ? { 
+    name: mockAuth.user.email.split('@')[0], 
+    email: mockAuth.user.email 
+  } : null)
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
     logout()
+    await mockAuth.signOut()
     router.push('/')
   }
 
@@ -33,7 +44,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             <div className="flex items-center gap-6">
-              {user && (
+              {displayUser && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -41,12 +52,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 >
                   <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
                     <span className="text-lg font-bold text-accent">
-                      {user.name.charAt(0).toUpperCase()}
+                      {displayUser.name.charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div className="hidden sm:block">
-                    <p className="text-sm font-semibold text-text-main">{user.name}</p>
-                    <p className="text-xs text-text-muted">{user.email}</p>
+                    <p className="text-sm font-semibold text-text-main">{displayUser.name}</p>
+                    <p className="text-xs text-text-muted">{displayUser.email}</p>
                   </div>
                 </motion.div>
               )}

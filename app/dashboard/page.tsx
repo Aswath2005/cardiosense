@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Loader2, LogOut, ChevronDown } from 'lucide-react'
+import { Loader2, LogOut, ChevronDown, Download } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { getPredictions } from '@/lib/supabase'
 import { useMockAuth } from '@/lib/mockAuth'
@@ -146,6 +146,73 @@ export default function DashboardPage() {
     return labels[thal] || 'Unknown'
   }
 
+  const escapeCsvCell = (value: string | number) => {
+    const stringValue = String(value)
+    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+      return `"${stringValue.replace(/"/g, '""')}"`
+    }
+    return stringValue
+  }
+
+  const handleDownloadCsv = () => {
+    if (filteredPredictions.length === 0) {
+      return
+    }
+
+    const headers = [
+      'created_at',
+      'age',
+      'sex',
+      'cp',
+      'trestbps',
+      'chol',
+      'fbs',
+      'restecg',
+      'thalach',
+      'exang',
+      'oldpeak',
+      'slope',
+      'ca',
+      'thal',
+      'risk_level',
+      'probability',
+    ]
+
+    const rows = filteredPredictions.map((pred) => [
+      pred.created_at,
+      pred.age,
+      pred.sex,
+      pred.cp,
+      pred.trestbps,
+      pred.chol,
+      pred.fbs,
+      pred.restecg,
+      pred.thalach,
+      pred.exang,
+      pred.oldpeak,
+      pred.slope,
+      pred.ca,
+      pred.thal,
+      pred.risk_level,
+      pred.probability,
+    ])
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((cell) => escapeCsvCell(cell)).join(','))
+      .join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    const today = new Date().toISOString().split('T')[0]
+    link.href = url
+    link.download = `cardiosense_predictions_${filterLevel}_${today}.csv`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  }
+
   const highRiskCount = predictions.filter((p) => p.risk_level === 'high').length
   const lowRiskCount = predictions.filter((p) => p.risk_level === 'low').length
 
@@ -253,6 +320,16 @@ export default function DashboardPage() {
                 <span className="text-sm text-text-muted">
                   Showing {paginatedPredictions.length} of {filteredPredictions.length} predictions
                 </span>
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={handleDownloadCsv}
+                  disabled={filteredPredictions.length === 0}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-bg-main text-sm font-medium hover:shadow-lg hover:shadow-accent/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  <Download size={16} />
+                  Download CSV
+                </motion.button>
               </div>
             </motion.div>
 

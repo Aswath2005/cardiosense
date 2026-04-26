@@ -4,8 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Activity, AlertCircle, CheckCircle, Loader } from 'lucide-react';
 import ResultCard from './ResultCard';
-import { predictHeartRisk } from '@/lib/api';
-import { savePrediction, supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import { useMockAuth } from '@/lib/mockAuth';
 import type { PatientData as PatientDataType } from '@/lib/types';
 
@@ -192,19 +191,33 @@ export default function PredictSection() {
         thal: parseFloat(formData.thal),
       };
 
-      const data = await predictHeartRisk(numericData);
+      // Use server-side API route that handles both prediction and database storage
+      const response = await fetch('/api/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          patientData: numericData,
+          userId: user?.id, // Pass userId if available
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Prediction failed');
+      }
+
+      const data = await response.json();
       setResult({
         risk: data.risk_level,
         probability: data.probability,
       });
 
-      // Save prediction to database if user is logged in
-      if (user?.id) {
-        const { error: saveError } = await savePrediction(user.id, numericData, data);
-        if (saveError) {
-          console.error('Failed to save prediction:', saveError);
-          // Don't block the UI — just log silently
-        }
+      if (data.db_saved) {
+        console.log('✅ Prediction completed and saved');
+      } else {
+        console.warn('⚠️ Prediction completed but not saved to DB:', data.db_error || 'Unknown DB error');
       }
 
       setTimeout(() => {

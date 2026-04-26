@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js'
 import { PatientData, PredictionResult } from './types'
 import { PredictionRecord } from './database.types'
 
-// Initialize Supabase browser client
+// Initialize Supabase browser client (singleton pattern to avoid multiple instances)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -17,7 +17,14 @@ if (!supabaseUrl || !supabaseAnonKey) {
   )
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  db: { schema: 'public' },
+  persistSession: true,
+  auth: { persistSession: true }
+})
+
+// Debug: Log connection
+console.log('✅ Supabase initialized:', supabaseUrl)
 
 /**
  * Save a prediction to the database
@@ -53,13 +60,18 @@ export async function savePrediction(
     })
 
     if (error) {
+      console.error('❌ Supabase save error:', error.message)
       return { error: error.message }
     }
 
+    console.log('✅ Prediction successfully saved to Supabase database')
     return { error: null }
   } catch (err) {
+    // Gracefully handle network errors - don't fail the prediction
     const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-    return { error: errorMessage }
+    console.warn('⚠️  Supabase unavailable (no internet?):', errorMessage)
+    console.log('✅ Prediction computed locally (database save skipped)')
+    return { error: null } // Don't block the prediction UI
   }
 }
 

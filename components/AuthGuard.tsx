@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useMockAuth } from '@/lib/mockAuth'
 
 interface AuthGuardProps {
   children: React.ReactNode
@@ -11,20 +12,33 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const router = useRouter()
+  const mockAuth = useMockAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Check mock auth first
+        if (!mockAuth.isLoading) {
+          if (mockAuth.user) {
+            setIsAuthorized(true)
+            setIsLoading(false)
+            return
+          }
+        }
+
+        // Then check Supabase session
         const { data: { session } } = await supabase.auth.getSession()
         
-        if (!session) {
-          router.push('/login')
+        if (session) {
+          setIsAuthorized(true)
+          setIsLoading(false)
           return
         }
-        
-        setIsAuthorized(true)
+
+        // Not authenticated with either method
+        router.push('/login')
       } catch (error) {
         console.error('Auth check failed:', error)
         router.push('/login')
@@ -33,8 +47,11 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       }
     }
 
-    checkAuth()
-  }, [router])
+    // Wait for mock auth to load
+    if (!mockAuth.isLoading) {
+      checkAuth()
+    }
+  }, [router, mockAuth.isLoading, mockAuth.user])
 
   if (isLoading) {
     return (

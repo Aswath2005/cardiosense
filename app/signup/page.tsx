@@ -4,9 +4,19 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Loader2, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react'
+import { Loader2, Eye, EyeOff, AlertCircle, CheckCircle, Zap } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useMockAuth } from '@/lib/mockAuth'
+
+interface PasswordStrength {
+  score: number // 0-4
+  level: 'weak' | 'fair' | 'good' | 'strong'
+  hasUpperCase: boolean
+  hasLowerCase: boolean
+  hasNumbers: boolean
+  hasSpecialChars: boolean
+  isLongEnough: boolean
+}
 
 export default function SignupPage() {
   const router = useRouter()
@@ -22,6 +32,48 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [usingMockAuth, setUsingMockAuth] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState<PasswordStrength | null>(null)
+
+  const evaluatePasswordStrength = (pwd: string): PasswordStrength => {
+    const hasUpperCase = /[A-Z]/.test(pwd)
+    const hasLowerCase = /[a-z]/.test(pwd)
+    const hasNumbers = /[0-9]/.test(pwd)
+    const hasSpecialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)
+    const isLongEnough = pwd.length >= 8
+
+    let score = 0
+    if (hasLowerCase) score++
+    if (hasUpperCase) score++
+    if (hasNumbers) score++
+    if (hasSpecialChars) score++
+    if (isLongEnough) score++
+
+    let level: 'weak' | 'fair' | 'good' | 'strong' = 'weak'
+    if (score >= 4) level = 'strong'
+    else if (score === 3) level = 'good'
+    else if (score === 2) level = 'fair'
+    else level = 'weak'
+
+    return {
+      score: Math.min(score, 4),
+      level,
+      hasUpperCase,
+      hasLowerCase,
+      hasNumbers,
+      hasSpecialChars,
+      isLongEnough,
+    }
+  }
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const pwd = e.target.value
+    setPassword(pwd)
+    if (pwd.length > 0) {
+      setPasswordStrength(evaluatePasswordStrength(pwd))
+    } else {
+      setPasswordStrength(null)
+    }
+  }
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -60,6 +112,11 @@ export default function SignupPage() {
       return
     }
 
+    if (!passwordStrength || passwordStrength.level === 'weak' || passwordStrength.level === 'fair') {
+      setError('Password is too weak. Please use uppercase, lowercase, numbers, and special characters.')
+      return
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match')
       return
@@ -68,18 +125,59 @@ export default function SignupPage() {
     setIsLoading(true)
 
     try {
-      const { error: authError } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: name,
           },
+          emailRedirectTo: `${window.location.origin}/`, // Skip email confirmation
         },
       })
 
       if (authError) {
         throw authError
+      }
+
+      // Store user profile in database (skip email confirmation requirement)
+      if (authData.user) {
+        const { error: profileError } = await supabase.from('users').insert({
+          id: authData.user.id,
+          email,
+          full_name: name,
+          created_at: new Date(),
+        })
+
+        if (profileError) {
+          console.error('❌ Failed to store user profile:', profileError)
+          console.error('Error code:', profileError.code)
+          console.error('Error message:', profileError.message)
+          // Don't throw - user is still authenticated, we just warned them
+        } else {
+          console.log('✅ User profile saved to database')
+        }
+
+        // Record login event
+        try {
+          const loginResponse = await fetch('/api/auth/login-record', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: authData.user.id,
+              email,
+              authMethod: 'email',
+            }),
+          })
+
+          if (loginResponse.ok) {
+            console.log('✅ Login recorded')
+          } else {
+            console.warn('⚠️  Failed to record login')
+          }
+        } catch (loginError) {
+          console.warn('⚠️  Could not record login:', loginError)
+        }
       }
 
       // Success
@@ -208,7 +306,7 @@ export default function SignupPage() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
                   placeholder="Min. 6 characters"
                   disabled={isLoading}
                   className="w-full px-4 py-3 rounded-xl bg-bg-main border border-border text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-all disabled:opacity-50 pr-12"
@@ -222,6 +320,132 @@ export default function SignupPage() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+
+              {/* Password Strength Indicator */}
+              {passwordStrength && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 space-y-2"
+                >
+                  {/* Strength Bar */}
+                  <div className="flex gap-1">
+                    {[0, 1, 2, 3].map((index) => (
+                      <div
+                        key={index}
+                        className={`flex-1 h-2 rounded-full transition-colors ${
+                          index < passwordStrength.score
+                            ? passwordStrength.level === 'strong'
+                              ? 'bg-success'
+                              : passwordStrength.level === 'good'
+                              ? 'bg-accent'
+                              : 'bg-warning'
+                            : 'bg-border'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Strength Label and Icon */}
+                  <div className="flex items-center gap-2">
+                    <Zap
+                      size={16}
+                      className={`${
+                        passwordStrength.level === 'strong'
+                          ? 'text-success'
+                          : passwordStrength.level === 'good'
+                          ? 'text-accent'
+                          : 'text-warning'
+                      }`}
+                    />
+                    <span
+                      className={`text-sm font-medium ${
+                        passwordStrength.level === 'strong'
+                          ? 'text-success'
+                          : passwordStrength.level === 'good'
+                          ? 'text-accent'
+                          : 'text-warning'
+                      }`}
+                    >
+                      Strength: {passwordStrength.level.charAt(0).toUpperCase() + passwordStrength.level.slice(1)}
+                    </span>
+                  </div>
+
+                  {/* Requirements Checklist */}
+                  <div className="grid grid-cols-2 gap-2 text-xs mt-3">
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className={`w-3.5 h-3.5 rounded-full flex items-center justify-center ${
+                          passwordStrength.hasLowerCase ? 'bg-success' : 'bg-border'
+                        }`}
+                      >
+                        {passwordStrength.hasLowerCase && (
+                          <span className="text-white text-xs">✓</span>
+                        )}
+                      </div>
+                      <span className={passwordStrength.hasLowerCase ? 'text-success' : 'text-text-muted'}>
+                        Lowercase letter
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className={`w-3.5 h-3.5 rounded-full flex items-center justify-center ${
+                          passwordStrength.hasUpperCase ? 'bg-success' : 'bg-border'
+                        }`}
+                      >
+                        {passwordStrength.hasUpperCase && (
+                          <span className="text-white text-xs">✓</span>
+                        )}
+                      </div>
+                      <span className={passwordStrength.hasUpperCase ? 'text-success' : 'text-text-muted'}>
+                        Uppercase letter
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className={`w-3.5 h-3.5 rounded-full flex items-center justify-center ${
+                          passwordStrength.hasNumbers ? 'bg-success' : 'bg-border'
+                        }`}
+                      >
+                        {passwordStrength.hasNumbers && (
+                          <span className="text-white text-xs">✓</span>
+                        )}
+                      </div>
+                      <span className={passwordStrength.hasNumbers ? 'text-success' : 'text-text-muted'}>
+                        Number
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div
+                        className={`w-3.5 h-3.5 rounded-full flex items-center justify-center ${
+                          passwordStrength.hasSpecialChars ? 'bg-success' : 'bg-border'
+                        }`}
+                      >
+                        {passwordStrength.hasSpecialChars && (
+                          <span className="text-white text-xs">✓</span>
+                        )}
+                      </div>
+                      <span className={passwordStrength.hasSpecialChars ? 'text-success' : 'text-text-muted'}>
+                        Special character
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 col-span-2">
+                      <div
+                        className={`w-3.5 h-3.5 rounded-full flex items-center justify-center ${
+                          passwordStrength.isLongEnough ? 'bg-success' : 'bg-border'
+                        }`}
+                      >
+                        {passwordStrength.isLongEnough && (
+                          <span className="text-white text-xs">✓</span>
+                        )}
+                      </div>
+                      <span className={passwordStrength.isLongEnough ? 'text-success' : 'text-text-muted'}>
+                        At least 8 characters
+                      </span>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Confirm Password */}

@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [usingMockAuth, setUsingMockAuth] = useState(false)
+  const [oauthLoading, setOauthLoading] = useState<string | null>(null)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -53,13 +54,36 @@ export default function LoginPage() {
     setIsLoading(true)
 
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
+      const { error: authError, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (authError) {
         throw authError
+      }
+
+      // Record login event
+      if (data.user) {
+        try {
+          const loginResponse = await fetch('/api/auth/login-record', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: data.user.id,
+              email,
+              authMethod: 'email',
+            }),
+          })
+
+          if (loginResponse.ok) {
+            console.log('✅ Login recorded')
+          } else {
+            console.warn('⚠️  Failed to record login')
+          }
+        } catch (loginError) {
+          console.warn('⚠️  Could not record login:', loginError)
+        }
       }
 
       // Success - redirect to home
@@ -72,6 +96,22 @@ export default function LoginPage() {
 
       try {
         await mockAuth.signIn(email, password)
+        
+        // Record mock login
+        try {
+          await fetch('/api/auth/login-record', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: `mock_${email}`,
+              email,
+              authMethod: 'mock',
+            }),
+          })
+        } catch (loginError) {
+          console.warn('⚠️  Could not record mock login')
+        }
+
         // Success - redirect to home
         setIsLoading(false)
         router.push('/')
@@ -79,6 +119,36 @@ export default function LoginPage() {
         setIsLoading(false)
         setError(mockErr instanceof Error ? mockErr.message : 'Sign in failed')
       }
+    }
+  }
+
+  const handleOAuthSignIn = async (provider: 'google' | 'github') => {
+    setError('')
+    setOauthLoading(provider)
+
+    try {
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (oauthError) {
+        throw oauthError
+      }
+
+      if (data?.url) {
+        window.location.href = data.url
+      }
+    } catch (err) {
+      setOauthLoading(null)
+      console.error(`${provider} OAuth error:`, err)
+      setError(
+        err instanceof Error
+          ? err.message
+          : `Failed to sign in with ${provider}`
+      )
     }
   }
 
